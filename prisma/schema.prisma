@@ -14,7 +14,16 @@ enum Roles {
 
 model users {
   id       String @id @unique
+  email    String @unique
   name     String @db.VarChar(100)
   password String @db.Char(80)
   role     Roles
+}
+
+model posts {
+  id        Int      @id @unique @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime
+  updatedAt DateTime
 }
