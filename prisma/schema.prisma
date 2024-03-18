@@ -24,6 +24,6 @@ model posts {
   id        Int      @id @unique @default(autoincrement())
   title     String
   content   String
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
 }
