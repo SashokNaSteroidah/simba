@@ -10,7 +10,7 @@ import {
     Prisma,
     Roles
 }                                from "@prisma/client";
-import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser";
+import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 
 @Injectable()
 export class AuthService {
