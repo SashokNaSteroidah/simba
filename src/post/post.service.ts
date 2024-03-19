@@ -6,8 +6,6 @@ import {
 import {DatabaseService} from "../database/database.service";
 import {CreatePostDto} from "./types/createPost.dto";
 import {GetPostDto} from "./types/getPost.dto";
-import {contains} from "class-validator";
-
 @Injectable()
 export class PostService {
     constructor(private readonly databaseService: DatabaseService) {
