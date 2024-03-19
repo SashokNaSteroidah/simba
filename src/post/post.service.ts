@@ -6,6 +6,11 @@ import {
 import {DatabaseService} from "../database/database.service";
 import {CreatePostDto} from "./types/createPost.dto";
 import {GetPostDto} from "./types/getPost.dto";
+import {DeletePostDto} from "./types/deletePost.dto";
+import {
+    PatchPostDto,
+    PatchPostID
+} from "./types/patchPost.dto";
 @Injectable()
 export class PostService {
     constructor(private readonly databaseService: DatabaseService) {
@@ -22,6 +27,44 @@ export class PostService {
             return "OK"
         } catch (e) {
             throw new HttpException("Can't create post", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async PatchPost(dto: PatchPostDto, params: PatchPostID): Promise<string> {
+        if (!params && !params.id) {
+            throw new HttpException("Invalid params", HttpStatus.BAD_REQUEST)
+        }
+        try {
+            await this.databaseService.posts.update({
+                where: {
+                    id: +params.id,
+                },
+                data: {
+                    title: dto.title,
+                    content: dto.content,
+                    updatedAt: new Date(),
+                }
+            })
+            return "OK"
+        } catch (e) {
+            throw new HttpException("Can't update post", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async DeletePost(params: DeletePostDto): Promise<string> {
+        if (!params && !params.id) {
+            throw new HttpException("Invalid params", HttpStatus.BAD_REQUEST)
+        }
+        try {
+            await this.databaseService.posts.delete({
+                where: {
+                    id: +params.id
+                }
+            })
+            return "OK"
+        } catch (e) {
+            // console.log(e)
+            throw new HttpException("Can't delete post", HttpStatus.BAD_REQUEST);
         }
     }
 
