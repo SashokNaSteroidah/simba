@@ -22,8 +22,13 @@ model users {
 
 model posts {
   id        Int      @id @unique @default(autoincrement())
-  title     String
-  content   String
+  title     String   @db.VarChar(100)
+  content   String   @db.VarChar(1000)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model tokens {
+  id    Int    @id @unique @default(autoincrement())
+  token String
 }
