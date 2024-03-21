@@ -26,7 +26,6 @@ import {
     PatchPostDto,
     PatchPostID
 }                     from "./types/patchPost.dto";
-import {AspectLogger} from "../logger/aspect.logger";
 
 @Controller('post')
 export class PostController {
@@ -36,11 +35,9 @@ export class PostController {
     @RolesGuardDecor(Roles.admin)
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
-    @UseGuards(AspectLogger)
     @UsePipes(new ValidationPipe())
     @Post()
     async CreatePost(@Body() dto: CreatePostDto): Promise<string> {
-
         return await this.postService.CreatePost(dto)
     }
 

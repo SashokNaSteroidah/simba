@@ -73,7 +73,7 @@ export class PostService {
         try {
             return await this.databaseService.posts.findMany()
         } catch (e) {
-            throw new HttpException("Unexpected user scenario", HttpStatus.BAD_REQUEST);
+            throw new HttpException("Unexpected user scenario", HttpStatus.BAD_GATEWAY);
         }
     }
 }
