@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  with-docker-multi-env-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: with-docker-multi-env-production
+    ports:
+      - "3001:3001"
+    network_mode: host
