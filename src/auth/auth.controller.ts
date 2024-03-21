@@ -18,7 +18,7 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("login")
-    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({ passthrough: true }) response: Response): Promise<string> {
+    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<string> {
         return await this.authService.loginUser(dto, response);
     }
 

@@ -7,9 +7,9 @@ import {
 export class AuthCreateUserDto {
     @IsString()
     @Length(3, 20)
-    name: string;
+    name     : string;
     @IsString()
-    password: string;
+    password : string;
     @IsEmail()
-    email: string;
+    email    : string;
 }

@@ -2,15 +2,16 @@ import {
     HttpException,
     HttpStatus,
     Injectable
-} from '@nestjs/common';
+}                        from '@nestjs/common';
 import {DatabaseService} from "../database/database.service";
-import {CreatePostDto} from "./types/createPost.dto";
-import {DeletePostDto} from "./types/deletePost.dto";
+import {CreatePostDto}   from "./types/createPost.dto";
+import {DeletePostDto}   from "./types/deletePost.dto";
 import {
     PatchPostDto,
     PatchPostID
-} from "./types/patchPost.dto";
-import {posts} from "@prisma/client";
+}                        from "./types/patchPost.dto";
+import {posts}           from "@prisma/client";
+
 @Injectable()
 export class PostService {
     constructor(private readonly databaseService: DatabaseService) {
@@ -20,7 +21,7 @@ export class PostService {
         try {
             await this.databaseService.posts.create({
                 data: {
-                    title: dto.title,
+                    title  : dto.title,
                     content: dto.content,
                 }
             })
@@ -39,9 +40,9 @@ export class PostService {
                 where: {
                     id: +params.id,
                 },
-                data: {
-                    title: dto.title,
-                    content: dto.content,
+                data : {
+                    title    : dto.title,
+                    content  : dto.content,
                     updatedAt: new Date(),
                 }
             })

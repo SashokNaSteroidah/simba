@@ -3,7 +3,7 @@ import {
     HttpStatus,
     Injectable,
     UnauthorizedException
-} from '@nestjs/common';
+}                                from '@nestjs/common';
 import {DatabaseService}         from "../database/database.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import * as bcrypt               from 'bcrypt';
@@ -15,7 +15,7 @@ import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {JwtService}              from "@nestjs/jwt";
 import {
     Response,
-} from "express";
+}                                from "express";
 
 @Injectable()
 export class AuthService {
@@ -29,8 +29,12 @@ export class AuthService {
             if (!isPasswordValid) {
                 throw new UnauthorizedException();
             }
-            const payload = { id: user.id, username: user.name, role: user.role };
-            const token = await this.jwtService.signAsync(payload)
+            const payload = {
+                id      : user.id,
+                username: user.name,
+                role    : user.role
+            };
+            const token   = await this.jwtService.signAsync(payload)
             await this.databaseService.tokens.create({
                 data: {
                     token: token
