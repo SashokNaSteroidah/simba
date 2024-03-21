@@ -6,8 +6,8 @@ import {
 export class CreatePostDto {
     @IsString()
     @Length(10, 100)
-    title: string
+    title     : string
     @IsString()
     @Length(20, 1000)
-    content: string
+    content   : string
 }

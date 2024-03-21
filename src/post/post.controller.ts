@@ -9,23 +9,23 @@ import {
     UseGuards,
     UsePipes,
     ValidationPipe
-} from '@nestjs/common';
+}                      from '@nestjs/common';
 import {PostService}   from "./post.service";
 import {CreatePostDto} from "./types/createPost.dto";
-import {AuthGuard}  from "../guards/auth/auth.guard";
+import {AuthGuard}     from "../guards/auth/auth.guard";
 import {
     RolesGuardDecor
-}                   from "../decorators/roles.decorator";
+}                      from "../decorators/roles.decorator";
 import {
     posts,
     Roles
-} from "@prisma/client";
+}                      from "@prisma/client";
 import {RolesGuard}    from "../guards/roles/roles.guard";
 import {DeletePostDto} from "./types/deletePost.dto";
 import {
     PatchPostDto,
     PatchPostID
-} from "./types/patchPost.dto";
+}                      from "./types/patchPost.dto";
 
 @Controller('post')
 export class PostController {
