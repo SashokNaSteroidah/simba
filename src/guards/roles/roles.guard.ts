@@ -4,10 +4,10 @@ import {
     HttpException,
     HttpStatus,
     Injectable
-} from "@nestjs/common";
-import {jwtConstants} from "../constants/constants";
-import {JwtService} from "@nestjs/jwt";
-import {Reflector} from "@nestjs/core";
+}                        from "@nestjs/common";
+import {jwtConstants}    from "../constants/constants";
+import {JwtService}      from "@nestjs/jwt";
+import {Reflector}       from "@nestjs/core";
 import {RolesGuardDecor} from "../../decorators/roles.decorator";
 
 @Injectable()
@@ -15,7 +15,9 @@ export class RolesGuard implements CanActivate {
     constructor(
         private readonly jwtService: JwtService,
         private reflector: Reflector
-    ) {}
+    ) {
+    }
+
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const roles = this.reflector.get(RolesGuardDecor, context.getHandler());
         const req   = context.switchToHttp().getRequest()
