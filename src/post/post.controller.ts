@@ -12,12 +12,14 @@ import {
 } from '@nestjs/common';
 import {PostService}   from "./post.service";
 import {CreatePostDto} from "./types/createPost.dto";
-import {GetPostDto} from "./types/getPost.dto";
 import {AuthGuard}  from "../guards/auth/auth.guard";
 import {
     RolesGuardDecor
 }                   from "../decorators/roles.decorator";
-import {Roles}         from "@prisma/client";
+import {
+    posts,
+    Roles
+} from "@prisma/client";
 import {RolesGuard}    from "../guards/roles/roles.guard";
 import {DeletePostDto} from "./types/deletePost.dto";
 import {
@@ -40,7 +42,7 @@ export class PostController {
     }
 
     @Get()
-    async getPosts(): Promise<GetPostDto[]> {
+    async getPosts(): Promise<posts[]> {
         return await this.postService.getPosts()
     }
 

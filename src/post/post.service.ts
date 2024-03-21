@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import {DatabaseService} from "../database/database.service";
 import {CreatePostDto} from "./types/createPost.dto";
-import {GetPostDto} from "./types/getPost.dto";
 import {DeletePostDto} from "./types/deletePost.dto";
 import {
     PatchPostDto,
     PatchPostID
 } from "./types/patchPost.dto";
+import {posts} from "@prisma/client";
 @Injectable()
 export class PostService {
     constructor(private readonly databaseService: DatabaseService) {
@@ -68,7 +68,7 @@ export class PostService {
         }
     }
 
-    async getPosts(): Promise<GetPostDto[]> {
+    async getPosts(): Promise<posts[]> {
         try {
             return await this.databaseService.posts.findMany()
         } catch (e) {
