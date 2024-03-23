@@ -19,20 +19,22 @@ export class AuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const token   = request.headers.cookie;
+        const cookie = token.split('; ').find((item: string) => item.startsWith('Cookie='));
+        const cookieValue = cookie.split('=')[1]
         if (!token) {
             return false
         }
         try {
             const data = await this.databaseService.tokens.findFirst({
                 where: {
-                    token: token
+                    token: cookieValue
                 }
             })
             if (!data) {
                 return false
             }
             request['user'] = await this.jwtService.verifyAsync(
-                token,
+                cookieValue,
                 {
                     secret: jwtConstants.secret
                 }

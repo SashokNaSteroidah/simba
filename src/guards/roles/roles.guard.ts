@@ -22,9 +22,11 @@ export class RolesGuard implements CanActivate {
         const roles = this.reflector.get(RolesGuardDecor, context.getHandler());
         const req   = context.switchToHttp().getRequest()
         const token = req.headers.cookie;
+        const cookie = token.split('; ').find((item: string) => item.startsWith('Cookie='));
+        const cookieValue = cookie.split('=')[1]
         try {
             const payload = req['user'] = await this.jwtService.verifyAsync(
-                token,
+                cookieValue,
                 {
                     secret: jwtConstants.secret
                 }
