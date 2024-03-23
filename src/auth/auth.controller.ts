@@ -2,10 +2,12 @@ import {
     Body,
     Controller,
     Post,
+    RawBodyRequest,
+    Req,
     Res,
     UsePipes,
     ValidationPipe
-}                                from '@nestjs/common';
+} from '@nestjs/common';
 import {AuthService}             from "./auth.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";

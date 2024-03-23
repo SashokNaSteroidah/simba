@@ -69,7 +69,7 @@ export class AuthService {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 // The .code property can be accessed in a type-safe manner
                 if (e.code === 'P2002') {
-                    throw new HttpException('There is a unique constraint violation, a new user cannot be created with this email', HttpStatus.BAD_REQUEST);
+                    throw new HttpException('There is a unique constraint violation, a new user cannot be created with this email or name', HttpStatus.BAD_REQUEST);
                 }
             }
             throw e
