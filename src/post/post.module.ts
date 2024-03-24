@@ -6,10 +6,12 @@ import {
     JwtModule,
 }                       from "@nestjs/jwt";
 import {jwtConstants}   from "../guards/constants/constants";
+import {RedisIntegrationModule} from "../redis-integration/redis-integration.module";
 
 @Module({
     imports    :
         [
+            RedisIntegrationModule,
             DatabaseModule,
             JwtModule.register({
                 global     : true,
