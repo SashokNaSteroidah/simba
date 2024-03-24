@@ -36,7 +36,7 @@ export class AuthService {
                 role    : user.role
             };
             const token   = await this.jwtService.signAsync(payload)
-            const tokensFromRedis = await this.redis.keys(`*${user.name}*`)
+            const tokensFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (tokensFromRedis.length === 0) {
                 const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
                 try {
