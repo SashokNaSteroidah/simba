@@ -9,7 +9,7 @@ async function bootstrap(): Promise<void> {
     app.use(cookieParser());
     app.setGlobalPrefix('api');
     app.enableCors();
-    await app.listen(3001);
+    await app.listen(process.env.PORT);
 }
 
 bootstrap();

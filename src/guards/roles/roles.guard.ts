@@ -9,6 +9,9 @@ import {jwtConstants}    from "../constants/constants";
 import {JwtService}      from "@nestjs/jwt";
 import {Reflector}       from "@nestjs/core";
 import {RolesGuardDecor} from "../../decorators/roles.decorator";
+import {
+    DEFAULT_FORBIDDEN_ERROR,
+} from "../../consts/errors.consts";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -31,9 +34,13 @@ export class RolesGuard implements CanActivate {
                     secret: jwtConstants.secret
                 }
             );
-            return payload.role === roles;
+            const role = payload.role === roles
+            if (role) {
+                return true
+            }
+            throw new Error()
         } catch (e) {
-            throw new HttpException("You don't have rights for this action", HttpStatus.FORBIDDEN);
+            throw new HttpException(DEFAULT_FORBIDDEN_ERROR, HttpStatus.FORBIDDEN);
         }
     }
 }

@@ -10,7 +10,11 @@ import {
     PatchPostDto,
     PatchPostID
 }                        from "./types/patchPost.dto";
-import {posts}           from "@prisma/client";
+import {posts} from "@prisma/client";
+import {
+    DEFAULT_FORBIDDEN_ERROR,
+    DEFAULT_SERVER_ERROR
+}              from "../consts/errors.consts";
 
 @Injectable()
 export class PostService {
@@ -73,7 +77,7 @@ export class PostService {
         try {
             return await this.databaseService.posts.findMany()
         } catch (e) {
-            throw new HttpException("Unexpected user scenario", HttpStatus.BAD_GATEWAY);
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 }
