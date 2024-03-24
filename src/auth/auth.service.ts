@@ -16,15 +16,16 @@ import {JwtService}              from "@nestjs/jwt";
 import {
     Response,
 }                                from "express";
+import {RedisIntegrationService} from "../redis-integration/redis-integration.service";
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService) {
+    constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService, private readonly redis: RedisIntegrationService) {
     }
 
     async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<string> {
         try {
-            const user = await this.databaseService.users.findFirst({where: {name: dto.name}})
+            const user                     = await this.databaseService.users.findFirst({where: {name: dto.name}})
             const isPasswordValid: boolean = await bcrypt.compare(dto.password, user.password.trim())
             if (!isPasswordValid) {
                 throw new UnauthorizedException();
@@ -35,11 +36,16 @@ export class AuthService {
                 role    : user.role
             };
             const token   = await this.jwtService.signAsync(payload)
-            await this.databaseService.tokens.create({
-                data: {
-                    token: token
+            const tokensFromRedis = await this.redis.keys(`*${user.name}*`)
+            if (tokensFromRedis.length === 0) {
+                const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
+                try {
+                    await this.redis.set(redisUniqueKey, token)
+                    await this.redis.expire(redisUniqueKey, 1800)
+                } catch (e) {
+                    console.error("Redis error: " + e.message)
                 }
-            })
+            }
             response.cookie("Cookie", token)
             return "OK"
         } catch (e) {
