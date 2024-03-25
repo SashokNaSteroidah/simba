@@ -4,8 +4,8 @@ import {PostService}    from './post.service';
 import {DatabaseModule} from "../database/database.module";
 import {
     JwtModule,
-}                       from "@nestjs/jwt";
-import {jwtConstants}   from "../guards/constants/constants";
+}                               from "@nestjs/jwt";
+import {jwtConstants}           from "../libs/consts/jwtSecret.consts";
 import {RedisIntegrationModule} from "../redis-integration/redis-integration.module";
 
 @Module({

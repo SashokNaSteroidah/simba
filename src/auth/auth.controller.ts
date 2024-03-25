@@ -11,12 +11,12 @@ import {
 import {AuthService}             from "./auth.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
-import {Response}                from "express";
-import {RolesGuardDecor} from "../decorators/roles.decorator";
-import {Roles} from "@prisma/client";
-import {AuthGuard} from "../guards/auth/auth.guard";
-import {RolesGuard} from "../guards/roles/roles.guard";
-import {TokensType} from "./types/tokens.type";
+import {Response}        from "express";
+import {RolesGuardDecor} from "../libs/decorators/roles.decorator";
+import {Roles}           from "@prisma/client";
+import {AuthGuard}       from "../libs/guards/auth/auth.guard";
+import {RolesGuard}      from "../libs/guards/roles/roles.guard";
+import {TokensType}      from "./types/tokens.type";
 
 @Controller('auth')
 export class AuthController {

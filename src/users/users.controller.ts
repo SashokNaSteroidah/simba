@@ -11,13 +11,13 @@ import {
     users
 } from "@prisma/client";
 import {UsersService}    from "./users.service";
-import {RolesGuardDecor} from "../decorators/roles.decorator";
-import {AuthGuard}       from "../guards/auth/auth.guard";
-import {RolesGuard}      from "../guards/roles/roles.guard";
+import {RolesGuardDecor} from "../libs/decorators/roles.decorator";
+import {AuthGuard}       from "../libs/guards/auth/auth.guard";
+import {RolesGuard}      from "../libs/guards/roles/roles.guard";
 import {
     PatchUserDto,
     PatchUserID
-} from "./types/patchUser.dto";
+}                        from "./types/patchUser.dto";
 
 @Controller('users')
 export class UsersController {
