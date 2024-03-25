@@ -9,15 +9,13 @@ import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import * as bcrypt               from 'bcrypt';
 import {
     Prisma,
-    Roles,
-    tokens
-} from "@prisma/client";
+    Roles
+}                                from "@prisma/client";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {JwtService}              from "@nestjs/jwt";
-import {
-    Response,
-}                                from "express";
+import {Response,}               from "express";
 import {RedisIntegrationService} from "../redis-integration/redis-integration.service";
+import {TokensType}              from "./types/tokens.type";
 
 @Injectable()
 export class AuthService {
@@ -83,8 +81,14 @@ export class AuthService {
         }
     }
 
-    async getTokens(): Promise<string[]> {
-        const tokens = await this.redis.keys("*");
-        return await Promise.all(tokens.map(async tok => await this.redis.get(tok)))
+    async getTokens(): Promise<TokensType[]> {
+        const keys = await this.redis.keys("*");
+        return await Promise.all(keys.map(async key => {
+            const token = await this.redis.get(key);
+            return {
+                key,
+                token
+            };
+        }));
     }
 }

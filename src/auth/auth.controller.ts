@@ -3,8 +3,6 @@ import {
     Controller,
     Get,
     Post,
-    RawBodyRequest,
-    Req,
     Res,
     UseGuards,
     UsePipes,
@@ -18,6 +16,7 @@ import {RolesGuardDecor} from "../decorators/roles.decorator";
 import {Roles} from "@prisma/client";
 import {AuthGuard} from "../guards/auth/auth.guard";
 import {RolesGuard} from "../guards/roles/roles.guard";
+import {TokensType} from "./types/tokens.type";
 
 @Controller('auth')
 export class AuthController {
@@ -40,7 +39,7 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
     @Get("tokens")
-    getTokens(): Promise<string[]> {
+    getTokens(): Promise<TokensType[]> {
         return this.authService.getTokens();
     }
 }
