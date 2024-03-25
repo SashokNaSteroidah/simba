@@ -33,8 +33,6 @@ export class AuthGuard implements CanActivate {
                     secret: jwtConstants.secret
                 }
             );
-            // const tokens = await this.redis.keys("*");
-            // console.log(await Promise.all(tokens.map(async tok => await this.redis.get(tok))));
             const user           = await this.redis.keys(`*_${payload.username}_*`)
             const tokenFromRedis = await this.redis.get(user[0])
             if (tokenFromRedis === null) {
@@ -44,6 +42,7 @@ export class AuthGuard implements CanActivate {
             if (!tokenIsValid) {
                 throw new Error()
             }
+
             return true
         } catch {
             throw new HttpException(DEFAULT_UNAUTHORIZED_ERROR, HttpStatus.UNAUTHORIZED);
