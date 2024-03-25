@@ -16,7 +16,7 @@ import {RedisIntegrationModule} from "../redis-integration/redis-integration.mod
             JwtModule.register({
                 global     : true,
                 secret     : jwtConstants.secret,
-                signOptions: {expiresIn: '100000000000000000000000s'},
+                signOptions: {expiresIn: '1800s'},
             }),
         ],
     controllers: [PostController],
