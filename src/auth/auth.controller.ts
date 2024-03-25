@@ -1,10 +1,12 @@
 import {
     Body,
     Controller,
+    Get,
     Post,
     RawBodyRequest,
     Req,
     Res,
+    UseGuards,
     UsePipes,
     ValidationPipe
 } from '@nestjs/common';
@@ -12,6 +14,10 @@ import {AuthService}             from "./auth.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {Response}                from "express";
+import {RolesGuardDecor} from "../decorators/roles.decorator";
+import {Roles} from "@prisma/client";
+import {AuthGuard} from "../guards/auth/auth.guard";
+import {RolesGuard} from "../guards/roles/roles.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +34,13 @@ export class AuthController {
     @Post("registration")
     registerUser(@Body() dto: AuthCreateUserDto): Promise<string> {
         return this.authService.registerUser(dto);
+    }
+
+    @RolesGuardDecor(Roles.admin)
+    @UseGuards(AuthGuard)
+    @UseGuards(RolesGuard)
+    @Get("tokens")
+    getTokens(): Promise<string[]> {
+        return this.authService.getTokens();
     }
 }

@@ -9,8 +9,9 @@ import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import * as bcrypt               from 'bcrypt';
 import {
     Prisma,
-    Roles
-}                                from "@prisma/client";
+    Roles,
+    tokens
+} from "@prisma/client";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {JwtService}              from "@nestjs/jwt";
 import {
@@ -80,5 +81,10 @@ export class AuthService {
             }
             throw e
         }
+    }
+
+    async getTokens(): Promise<string[]> {
+        const tokens = await this.redis.keys("*");
+        return await Promise.all(tokens.map(async tok => await this.redis.get(tok)))
     }
 }
