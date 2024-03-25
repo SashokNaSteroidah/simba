@@ -12,7 +12,6 @@ import {
 }                        from "./types/patchPost.dto";
 import {posts} from "@prisma/client";
 import {
-    DEFAULT_FORBIDDEN_ERROR,
     DEFAULT_SERVER_ERROR
 }              from "../consts/errors.consts";
 
