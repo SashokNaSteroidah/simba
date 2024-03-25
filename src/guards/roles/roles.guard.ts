@@ -11,7 +11,7 @@ import {Reflector}       from "@nestjs/core";
 import {RolesGuardDecor} from "../../decorators/roles.decorator";
 import {
     DEFAULT_FORBIDDEN_ERROR,
-} from "../../consts/errors.consts";
+}                        from "../../consts/errors.consts";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,19 +22,19 @@ export class RolesGuard implements CanActivate {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const roles = this.reflector.get(RolesGuardDecor, context.getHandler());
-        const req   = context.switchToHttp().getRequest()
-        const token = req.headers.cookie;
-        const cookie = token.split('; ').find((item: string) => item.startsWith('Cookie='));
-        const cookieValue = cookie.split('=')[1]
         try {
-            const payload = req['user'] = await this.jwtService.verifyAsync(
+            const roles       = this.reflector.get(RolesGuardDecor, context.getHandler());
+            const req         = context.switchToHttp().getRequest()
+            const token       = req.headers.cookie;
+            const cookie      = token.split('; ').find((item: string) => item.startsWith('Cookie='));
+            const cookieValue = cookie.split('=')[1]
+            const payload     = req['user'] = await this.jwtService.verifyAsync(
                 cookieValue,
                 {
                     secret: jwtConstants.secret
                 }
             );
-            const role = payload.role === roles
+            const role        = payload.role === roles
             if (role) {
                 return true
             }

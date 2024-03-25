@@ -13,10 +13,9 @@ import {
 }                                from "@prisma/client";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {JwtService}              from "@nestjs/jwt";
-import {
-    Response,
-}                                from "express";
+import {Response,}               from "express";
 import {RedisIntegrationService} from "../redis-integration/redis-integration.service";
+import {TokensType}              from "./types/tokens.type";
 
 @Injectable()
 export class AuthService {
@@ -36,7 +35,7 @@ export class AuthService {
                 role    : user.role
             };
             const token   = await this.jwtService.signAsync(payload)
-            const tokensFromRedis = await this.redis.keys(`*${user.name}*`)
+            const tokensFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (tokensFromRedis.length === 0) {
                 const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
                 try {
@@ -80,5 +79,16 @@ export class AuthService {
             }
             throw e
         }
+    }
+
+    async getTokens(): Promise<TokensType[]> {
+        const keys = await this.redis.keys("*");
+        return await Promise.all(keys.map(async key => {
+            const token = await this.redis.get(key);
+            return {
+                key,
+                token
+            };
+        }));
     }
 }
