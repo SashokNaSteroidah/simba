@@ -3,7 +3,6 @@ import {
     Request,
     Response,
     NextFunction,
-    json
 } from 'express';
 
 @Injectable()

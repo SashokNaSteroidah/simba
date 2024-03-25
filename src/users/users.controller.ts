@@ -7,7 +7,6 @@ import {
     UseGuards
 } from '@nestjs/common';
 import {
-    posts,
     Roles,
     users
 } from "@prisma/client";
@@ -15,10 +14,6 @@ import {UsersService}    from "./users.service";
 import {RolesGuardDecor} from "../decorators/roles.decorator";
 import {AuthGuard}       from "../guards/auth/auth.guard";
 import {RolesGuard}      from "../guards/roles/roles.guard";
-import {
-    PatchPostDto,
-    PatchPostID
-} from "../post/types/patchPost.dto";
 import {
     PatchUserDto,
     PatchUserID
