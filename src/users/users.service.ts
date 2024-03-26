@@ -6,8 +6,8 @@ import {
 import {
     users
 }                             from "@prisma/client";
-import {DEFAULT_SERVER_ERROR} from "../consts/errors.consts";
-import {DatabaseService} from "../database/database.service";
+import {DEFAULT_SERVER_ERROR} from "../libs/consts/errors.consts";
+import {DatabaseService}      from "../database/database.service";
 import {
     PatchUserDto,
     PatchUserID

@@ -13,7 +13,7 @@ import {
 import {posts} from "@prisma/client";
 import {
     DEFAULT_SERVER_ERROR
-}              from "../consts/errors.consts";
+}              from "../libs/consts/errors.consts";
 
 @Injectable()
 export class PostService {

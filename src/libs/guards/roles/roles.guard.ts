@@ -5,7 +5,7 @@ import {
     HttpStatus,
     Injectable
 }                        from "@nestjs/common";
-import {jwtConstants}    from "../constants/constants";
+import {jwtConstants}    from "../../consts/jwtSecret.consts";
 import {JwtService}      from "@nestjs/jwt";
 import {Reflector}       from "@nestjs/core";
 import {RolesGuardDecor} from "../../decorators/roles.decorator";

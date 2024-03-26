@@ -34,9 +34,9 @@ export class AuthService {
                 username: user.name,
                 role    : user.role
             };
-            const token   = await this.jwtService.signAsync(payload)
-            const tokensFromRedis = await this.redis.keys(`*_${user.name}_*`)
-            if (tokensFromRedis.length === 0) {
+            const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
+            if (nameFromRedis.length === 0) {
+                const token   = await this.jwtService.signAsync(payload)
                 const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
                 try {
                     await this.redis.set(redisUniqueKey, token)
@@ -44,8 +44,11 @@ export class AuthService {
                 } catch (e) {
                     console.error("Redis error: " + e.message)
                 }
+                response.cookie("Cookie", token)
+            } else {
+                const tokensFromRedis = await this.redis.get(nameFromRedis[0])
+                response.cookie("Cookie", tokensFromRedis)
             }
-            response.cookie("Cookie", token)
             return "OK"
         } catch (e) {
             if (e.status === 401) {

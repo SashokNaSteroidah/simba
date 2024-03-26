@@ -6,8 +6,8 @@ import {
     Injectable,
 }                                   from '@nestjs/common';
 import {JwtService}                 from "@nestjs/jwt";
-import {jwtConstants}               from "../constants/constants";
-import {RedisIntegrationService}    from "../../redis-integration/redis-integration.service";
+import {jwtConstants}               from "../../consts/jwtSecret.consts";
+import {RedisIntegrationService}    from "../../../redis-integration/redis-integration.service";
 import {DEFAULT_UNAUTHORIZED_ERROR} from "../../consts/errors.consts";
 
 @Injectable()

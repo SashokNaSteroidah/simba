@@ -3,7 +3,7 @@ import {AuthController}         from './auth.controller';
 import {AuthService}            from './auth.service';
 import {DatabaseModule}         from "../database/database.module";
 import {JwtModule}              from "@nestjs/jwt";
-import {jwtConstants}           from "../guards/constants/constants";
+import {jwtConstants}           from "../libs/consts/jwtSecret.consts";
 import {RedisIntegrationModule} from "../redis-integration/redis-integration.module";
 
 @Module({

@@ -12,15 +12,15 @@ import {
 }                      from '@nestjs/common';
 import {PostService}   from "./post.service";
 import {CreatePostDto} from "./types/createPost.dto";
-import {AuthGuard}     from "../guards/auth/auth.guard";
+import {AuthGuard}     from "../libs/guards/auth/auth.guard";
 import {
     RolesGuardDecor
-}                      from "../decorators/roles.decorator";
+}                      from "../libs/decorators/roles.decorator";
 import {
     posts,
     Roles
 }                      from "@prisma/client";
-import {RolesGuard}    from "../guards/roles/roles.guard";
+import {RolesGuard}    from "../libs/guards/roles/roles.guard";
 import {DeletePostDto} from "./types/deletePost.dto";
 import {
     PatchPostDto,
