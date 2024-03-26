@@ -45,9 +45,10 @@ export class AuthService {
                     console.error("Redis error: " + e.message)
                 }
                 response.cookie("Cookie", token)
+            } else {
+                const tokensFromRedis = await this.redis.get(nameFromRedis[0])
+                response.cookie("Cookie", tokensFromRedis)
             }
-            const tokensFromRedis = await this.redis.get(nameFromRedis[0])
-            response.cookie("Cookie", tokensFromRedis)
             return "OK"
         } catch (e) {
             if (e.status === 401) {
