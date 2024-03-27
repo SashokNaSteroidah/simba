@@ -48,7 +48,7 @@ export class AuthController {
         return this.authService.getTokens();
     }
 
-    @Post("refresh-token")
+    @Post("refresh")
     refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<string> {
         return this.authService.refreshToken(dto, res);
     }
