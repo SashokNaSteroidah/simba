@@ -24,6 +24,17 @@ export class AuthService {
     constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService, private readonly redis: RedisIntegrationService) {
     }
 
+    async setToRedisNewToken(username: string, token: string): Promise<unknown> {
+        const redisUniqueKey = `accessToken_${username}_${Math.random().toString(36).substring(2, 9)}`
+        try {
+            await this.redis.set(redisUniqueKey, token)
+            await this.redis.expire(redisUniqueKey, 1800)
+        } catch (e) {
+            console.error("Redis error: " + e.message)
+        }
+        return true
+    }
+
     async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<string> {
         try {
             const user = await this.databaseService.users.findFirst({where: {name: dto.name}})
@@ -39,13 +50,7 @@ export class AuthService {
             const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (nameFromRedis.length === 0) {
                 const token   = await this.jwtService.signAsync(payload)
-                const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
-                try {
-                    await this.redis.set(redisUniqueKey, token)
-                    await this.redis.expire(redisUniqueKey, 1800)
-                } catch (e) {
-                    console.error("Redis error: " + e.message)
-                }
+                await this.setToRedisNewToken(user.name, token)
                 const refreshToken   = await this.jwtService.signAsync(payload)
                 await this.databaseService.tokens.create({
                     data: {
@@ -133,13 +138,7 @@ export class AuthService {
                     await this.redis.del(nameFromRedis[0])
                 }
                 const token   = await this.jwtService.signAsync(payload)
-                const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
-                try {
-                    await this.redis.set(redisUniqueKey, token)
-                    await this.redis.expire(redisUniqueKey, 1800)
-                } catch (e) {
-                    console.error("Redis error: " + e.message)
-                }
+                await this.setToRedisNewToken(user.name, token)
                 response.cookie("Cookie", token)
                 return "OK"
             }
