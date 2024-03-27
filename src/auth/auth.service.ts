@@ -17,7 +17,10 @@ import {RedisIntegrationService} from "../redis-integration/redis-integration.se
 import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
 import {DEFAULT_BAD_REQUEST_ERROR} from "../libs/consts/errors.consts";
-import {Response} from "express";
+import {
+    Request,
+    Response
+} from "express";
 
 @Injectable()
 export class AuthService {
@@ -50,13 +53,13 @@ export class AuthService {
             const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (nameFromRedis.length === 0) {
                 const token   = await this.jwtService.signAsync(payload)
-                await this.setToRedisNewToken(user.name, token)
                 const refreshToken   = await this.jwtService.signAsync(payload)
+                await this.setToRedisNewToken(user.name, token)
                 await this.databaseService.tokens.create({
                     data: {
                         token: refreshToken,
                         client_name: dto.name,
-                        expires_at: new Date().setMonth(2).toString(),
+                        expires_at: new Date()
                     }
                 })
                 response.cookie("Cookie", token)
@@ -70,7 +73,7 @@ export class AuthService {
                         data: {
                             token: refreshToken,
                             client_name: dto.name,
-                            expires_at: new Date().setMonth(2).toString(),
+                            expires_at: new Date()
                         }
                     })
                     return refreshToken
@@ -82,7 +85,7 @@ export class AuthService {
             if (e.status === 401) {
                 throw new HttpException("This users doesn't exist", HttpStatus.BAD_REQUEST);
             }
-            throw new HttpException("Unexpected user scenario", HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -123,7 +126,8 @@ export class AuthService {
         }));
     }
 
-    async refreshToken(dto: RefreshTokenDto, response: Response): Promise<string> {
+    async refreshToken(dto: RefreshTokenDto, response: Response, request: Request): Promise<string> {
+        console.log(request.headers.cookie)
         try {
             const dataFromDB = await this.databaseService.tokens.findFirst({where: {token: dto.refreshToken}})
             if (dataFromDB) {
