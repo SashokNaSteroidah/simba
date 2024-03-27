@@ -29,6 +29,8 @@ model posts {
 }
 
 model tokens {
-  id    Int    @id @unique @default(autoincrement())
-  token String
+  id          Int      @id @unique @default(autoincrement())
+  client_name String   @unique
+  expires_at  DateTime
+  token       String
 }
