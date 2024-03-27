@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 services:
   app:
     build:
@@ -9,3 +9,21 @@ services:
       - ./.env.prod
     ports:
       - "3001:3001"
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "root"
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "root"
+    ports:
+      - 127.0.0.1:5432:5432
