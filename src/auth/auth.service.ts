@@ -13,18 +13,34 @@ import {
 }                                from "@prisma/client";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {JwtService}              from "@nestjs/jwt";
-import {Response,}               from "express";
 import {RedisIntegrationService} from "../redis-integration/redis-integration.service";
 import {TokensType}              from "./types/tokens.type";
+import {RefreshTokenDto}         from "./types/refreshToken.dto";
+import {DEFAULT_BAD_REQUEST_ERROR} from "../libs/consts/errors.consts";
+import {
+    Request,
+    Response
+} from "express";
 
 @Injectable()
 export class AuthService {
     constructor(private readonly databaseService: DatabaseService, private readonly jwtService: JwtService, private readonly redis: RedisIntegrationService) {
     }
 
+    async setToRedisNewToken(username: string, token: string): Promise<unknown> {
+        const redisUniqueKey = `accessToken_${username}_${Math.random().toString(36).substring(2, 9)}`
+        try {
+            await this.redis.set(redisUniqueKey, token)
+            await this.redis.expire(redisUniqueKey, 1800)
+        } catch (e) {
+            console.error("Redis error: " + e.message)
+        }
+        return true
+    }
+
     async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<string> {
         try {
-            const user                     = await this.databaseService.users.findFirst({where: {name: dto.name}})
+            const user = await this.databaseService.users.findFirst({where: {name: dto.name}})
             const isPasswordValid: boolean = await bcrypt.compare(dto.password, user.password.trim())
             if (!isPasswordValid) {
                 throw new UnauthorizedException();
@@ -37,24 +53,39 @@ export class AuthService {
             const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (nameFromRedis.length === 0) {
                 const token   = await this.jwtService.signAsync(payload)
-                const redisUniqueKey = `accessToken_${user.name}_${Math.random().toString(36).substring(2, 9)}`
-                try {
-                    await this.redis.set(redisUniqueKey, token)
-                    await this.redis.expire(redisUniqueKey, 1800)
-                } catch (e) {
-                    console.error("Redis error: " + e.message)
-                }
+                const refreshToken   = await this.jwtService.signAsync(payload)
+                await this.setToRedisNewToken(user.name, token)
+                await this.databaseService.tokens.create({
+                    data: {
+                        token: refreshToken,
+                        client_name: dto.name,
+                        expires_at: new Date()
+                    }
+                })
                 response.cookie("Cookie", token)
+                return refreshToken
             } else {
                 const tokensFromRedis = await this.redis.get(nameFromRedis[0])
+                const data = await this.databaseService.tokens.findFirst({where: {client_name: dto.name}})
+                if (!data) {
+                    const refreshToken   = await this.jwtService.signAsync(payload)
+                    await this.databaseService.tokens.create({
+                        data: {
+                            token: refreshToken,
+                            client_name: dto.name,
+                            expires_at: new Date()
+                        }
+                    })
+                    return refreshToken
+                }
                 response.cookie("Cookie", tokensFromRedis)
+                return data.token
             }
-            return "OK"
         } catch (e) {
             if (e.status === 401) {
                 throw new HttpException("This users doesn't exist", HttpStatus.BAD_REQUEST);
             }
-            throw new HttpException("Unexpected user scenario", HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -93,5 +124,31 @@ export class AuthService {
                 token
             };
         }));
+    }
+
+    async refreshToken(dto: RefreshTokenDto, response: Response, request: Request): Promise<string> {
+        console.log(request.headers.cookie)
+        try {
+            const dataFromDB = await this.databaseService.tokens.findFirst({where: {token: dto.refreshToken}})
+            if (dataFromDB) {
+                const user = await this.databaseService.users.findFirst({where: {name: dataFromDB.client_name}})
+                const payload = {
+                    id      : user.id,
+                    username: user.name,
+                    role    : user.role
+                };
+                const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
+                if (nameFromRedis.length !== 0) {
+                    await this.redis.del(nameFromRedis[0])
+                }
+                const token   = await this.jwtService.signAsync(payload)
+                await this.setToRedisNewToken(user.name, token)
+                response.cookie("Cookie", token)
+                return "OK"
+            }
+            throw new Error()
+        } catch (e) {
+            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST)
+        }
     }
 }

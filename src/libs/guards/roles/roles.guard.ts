@@ -12,6 +12,7 @@ import {RolesGuardDecor} from "../../decorators/roles.decorator";
 import {
     DEFAULT_FORBIDDEN_ERROR,
 }                        from "../../consts/errors.consts";
+import {cookieParser}    from "../../parser/cookieParser";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -26,10 +27,9 @@ export class RolesGuard implements CanActivate {
             const roles       = this.reflector.get(RolesGuardDecor, context.getHandler());
             const req         = context.switchToHttp().getRequest()
             const token       = req.headers.cookie;
-            const cookie      = token.split('; ').find((item: string) => item.startsWith('Cookie='));
-            const cookieValue = cookie.split('=')[1]
+            const parsecCookie = cookieParser(token)
             const payload     = req['user'] = await this.jwtService.verifyAsync(
-                cookieValue,
+                parsecCookie,
                 {
                     secret: jwtConstants.secret
                 }
