@@ -9,6 +9,7 @@ import {JwtService}                 from "@nestjs/jwt";
 import {jwtConstants}               from "../../consts/jwtSecret.consts";
 import {RedisIntegrationService}    from "../../../redis-integration/redis-integration.service";
 import {DEFAULT_UNAUTHORIZED_ERROR} from "../../consts/errors.consts";
+import {cookieParser}               from "../../parser/cookieParser";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,13 +23,12 @@ export class AuthGuard implements CanActivate {
         try {
             const request     = context.switchToHttp().getRequest();
             const token       = request.headers.cookie;
-            const cookie      = token.split('; ').find((item: string) => item.startsWith('Cookie='));
-            const cookieValue = cookie.split('=')[1]
-            if (!cookieValue) {
+            const parsedCookie = cookieParser(token)
+            if (!parsedCookie) {
                 return false
             }
             const payload = request['user'] = await this.jwtService.verifyAsync(
-                cookieValue,
+                parsedCookie,
                 {
                     secret: jwtConstants.secret
                 }
@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate {
             if (tokenFromRedis === null) {
                 throw new Error()
             }
-            const tokenIsValid = tokenFromRedis === cookieValue
+            const tokenIsValid = tokenFromRedis === parsedCookie
             if (!tokenIsValid) {
                 throw new Error()
             }
