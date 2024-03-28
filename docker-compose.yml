@@ -21,7 +21,7 @@ services:
       - redisdata:/var/lib/redis/data
   postgres:
     image: postgres
-    restart: unless-stopped
+    restart: always
     environment:
       POSTGRES_DB: "root"
       POSTGRES_USER: "root"
