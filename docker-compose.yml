@@ -4,13 +4,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    network_mode: host
     env_file:
-      - ./.env.prod
+      - .env.prod
     ports:
       - "3001:3001"
   redis:
-    image: redis:latest
+    image: redis
     restart: always
     ports:
       - "6379:6379"
@@ -18,6 +17,8 @@ services:
       - REDIS_PASSWORD=my-password
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
+    volumes:
+      - redisdata:/var/lib/redis/data
   postgres:
     image: postgres
     restart: unless-stopped
@@ -26,4 +27,9 @@ services:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "root"
     ports:
-      - 127.0.0.1:5432:5432
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
+  redisdata:
