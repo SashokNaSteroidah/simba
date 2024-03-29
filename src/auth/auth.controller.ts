@@ -48,6 +48,7 @@ export class AuthController {
         return this.authService.getTokens();
     }
 
+    @UsePipes(new ValidationPipe())
     @Post("refresh")
     refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response, @Req() req: Request): Promise<string> {
         return this.authService.refreshToken(dto, res, req);

@@ -129,9 +129,10 @@ export class AuthService {
     async refreshToken(dto: RefreshTokenDto, response: Response, request: Request): Promise<string> {
         console.log(request.headers.cookie)
         try {
-            const dataFromDB = await this.databaseService.tokens.findFirst({where: {token: dto.refreshToken}})
+            const dataFromDB = await this.databaseService.tokens.findFirstOrThrow({where: {token: dto.refreshToken}})
+            console.log(dataFromDB)
             if (dataFromDB) {
-                const user = await this.databaseService.users.findFirst({where: {name: dataFromDB.client_name}})
+                const user = await this.databaseService.users.findFirstOrThrow({where: {name: dataFromDB.client_name}})
                 const payload = {
                     id      : user.id,
                     username: user.name,
