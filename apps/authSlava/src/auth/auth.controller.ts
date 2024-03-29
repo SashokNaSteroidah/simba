@@ -3,24 +3,22 @@ import {
     Controller,
     Get,
     Post,
-    Req,
     Res,
     UseGuards,
     UsePipes,
     ValidationPipe
-} from '@nestjs/common';
+}                                from '@nestjs/common';
 import {AuthService}             from "./auth.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {
-    Request,
     Response
-} from "express";
-import {RolesGuardDecor} from "../libs/decorators/roles.decorator";
-import {Roles}           from "@prisma/client";
-import {AuthGuard}       from "../libs/guards/auth/auth.guard";
-import {RolesGuard}      from "../libs/guards/roles/roles.guard";
-import {TokensType}      from "./types/tokens.type";
+}                                from "express";
+import {RolesGuardDecor}         from "../libs/decorators/roles.decorator";
+import {Roles}                   from "@prisma/client";
+import {AuthGuard}               from "../libs/guards/auth/auth.guard";
+import {RolesGuard}              from "../libs/guards/roles/roles.guard";
+import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
 
 @Controller('auth')
@@ -30,7 +28,7 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("login")
-    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<string> {
+    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<unknown> {
         return await this.authService.loginUser(dto, response);
     }
 
@@ -50,7 +48,7 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("refresh")
-    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response, @Req() req: Request): Promise<string> {
-        return this.authService.refreshToken(dto, res, req);
+    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<string> {
+        return this.authService.refreshToken(dto, res);
     }
 }

@@ -3,24 +3,22 @@ import {
     HttpStatus,
     Injectable,
     UnauthorizedException
-}                                from '@nestjs/common';
-import {DatabaseService}         from "../database/database.service";
-import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
-import * as bcrypt               from 'bcrypt';
+}                                  from "@nestjs/common";
+import {DatabaseService}           from "./database/database.service";
+import {JwtService}                from "@nestjs/jwt";
+import {RedisIntegrationService}   from "./redis-integration/redis-integration.service";
+import {DEFAULT_BAD_REQUEST_ERROR} from "./consts/errors.consts";
+import * as bcrypt                 from 'bcrypt';
+
 import {
     Prisma,
     Roles
 }                                from "@prisma/client";
-import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
-import {JwtService}              from "@nestjs/jwt";
-import {RedisIntegrationService} from "../redis-integration/redis-integration.service";
 import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
-import {DEFAULT_BAD_REQUEST_ERROR} from "../libs/consts/errors.consts";
-import {
-    Request,
-    Response
-} from "express";
+import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
+import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
+import {LoginUserEventDto}       from "./types/events/loginUserEvent.dto";
 
 @Injectable()
 export class AuthService {
@@ -38,48 +36,55 @@ export class AuthService {
         return true
     }
 
-    async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<string> {
+    async loginUser(dto: AuthAuthenticateUserDTO): Promise<LoginUserEventDto> {
         try {
-            const user = await this.databaseService.users.findFirst({where: {name: dto.name}})
+            const user= await this.databaseService.users.findFirst({where: {name: dto.name}})
             const isPasswordValid: boolean = await bcrypt.compare(dto.password, user.password.trim())
             if (!isPasswordValid) {
                 throw new UnauthorizedException();
             }
-            const payload = {
+            const payload       = {
                 id      : user.id,
                 username: user.name,
                 role    : user.role
             };
             const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
             if (nameFromRedis.length === 0) {
-                const token   = await this.jwtService.signAsync(payload)
-                const refreshToken   = await this.jwtService.signAsync(payload)
+                const token        = await this.jwtService.signAsync(payload)
+                const refreshToken = await this.jwtService.signAsync(payload)
                 await this.setToRedisNewToken(user.name, token)
                 await this.databaseService.tokens.create({
                     data: {
-                        token: refreshToken,
+                        token      : refreshToken,
                         client_name: dto.name,
-                        expires_at: new Date()
+                        expires_at : new Date()
                     }
                 })
-                response.cookie("Cookie", token)
-                return refreshToken
+                return {
+                    accessToken: token,
+                    refreshToken: refreshToken
+                }
             } else {
                 const tokensFromRedis = await this.redis.get(nameFromRedis[0])
-                const data = await this.databaseService.tokens.findFirst({where: {client_name: dto.name}})
+                const data            = await this.databaseService.tokens.findFirst({where: {client_name: dto.name}})
                 if (!data) {
-                    const refreshToken   = await this.jwtService.signAsync(payload)
+                    const refreshToken = await this.jwtService.signAsync(payload)
                     await this.databaseService.tokens.create({
                         data: {
-                            token: refreshToken,
+                            token      : refreshToken,
                             client_name: dto.name,
-                            expires_at: new Date()
+                            expires_at : new Date()
                         }
                     })
-                    return refreshToken
+                    return {
+                        accessToken: tokensFromRedis,
+                        refreshToken: refreshToken
+                    }
                 }
-                response.cookie("Cookie", tokensFromRedis)
-                return data.token
+                return {
+                    accessToken: tokensFromRedis,
+                    refreshToken: data.token
+                }
             }
         } catch (e) {
             if (e.status === 401) {
@@ -89,7 +94,7 @@ export class AuthService {
         }
     }
 
-    async registerUser(dto: AuthCreateUserDto): Promise<string> {
+    async regUser(dto: AuthCreateUserDto): Promise<string> {
         try {
             const saltOrRounds = 10;
             const hash         = await bcrypt.hash(dto.password, saltOrRounds);
@@ -106,7 +111,6 @@ export class AuthService {
             return "OK"
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                // The .code property can be accessed in a type-safe manner
                 if (e.code === 'P2002') {
                     throw new HttpException('There is a unique constraint violation, a new user cannot be created with this email or name', HttpStatus.BAD_REQUEST);
                 }
@@ -126,14 +130,12 @@ export class AuthService {
         }));
     }
 
-    async refreshToken(dto: RefreshTokenDto, response: Response, request: Request): Promise<string> {
-        console.log(request.headers.cookie)
+    async refreshToken(dto: RefreshTokenDto): Promise<string> {
         try {
             const dataFromDB = await this.databaseService.tokens.findFirstOrThrow({where: {token: dto.refreshToken}})
-            console.log(dataFromDB)
             if (dataFromDB) {
-                const user = await this.databaseService.users.findFirstOrThrow({where: {name: dataFromDB.client_name}})
-                const payload = {
+                const user          = await this.databaseService.users.findFirstOrThrow({where: {name: dataFromDB.client_name}})
+                const payload       = {
                     id      : user.id,
                     username: user.name,
                     role    : user.role
@@ -142,10 +144,9 @@ export class AuthService {
                 if (nameFromRedis.length !== 0) {
                     await this.redis.del(nameFromRedis[0])
                 }
-                const token   = await this.jwtService.signAsync(payload)
+                const token = await this.jwtService.signAsync(payload)
                 await this.setToRedisNewToken(user.name, token)
-                response.cookie("Cookie", token)
-                return "OK"
+                return token
             }
             throw new Error()
         } catch (e) {
