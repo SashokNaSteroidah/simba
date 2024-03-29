@@ -8,7 +8,7 @@ import {RedisIntegrationModule} from "../redis-integration/redis-integration.mod
 import {
     ClientsModule,
     Transport
-} from "@nestjs/microservices";
+}                               from "@nestjs/microservices";
 
 @Module({
     imports    :
@@ -22,9 +22,9 @@ import {
             }),
             ClientsModule.register([
                 {
-                    name: "auth",
+                    name     : "auth",
                     transport: Transport.TCP,
-                    options: {
+                    options  : {
                         port: 3002
                     }
                 }

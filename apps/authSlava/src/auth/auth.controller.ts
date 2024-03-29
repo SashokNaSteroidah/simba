@@ -3,24 +3,22 @@ import {
     Controller,
     Get,
     Post,
-    Req,
     Res,
     UseGuards,
     UsePipes,
     ValidationPipe
-} from '@nestjs/common';
+}                                from '@nestjs/common';
 import {AuthService}             from "./auth.service";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {
-    Request,
     Response
-} from "express";
-import {RolesGuardDecor} from "../libs/decorators/roles.decorator";
-import {Roles}           from "@prisma/client";
-import {AuthGuard}       from "../libs/guards/auth/auth.guard";
-import {RolesGuard}      from "../libs/guards/roles/roles.guard";
-import {TokensType}      from "./types/tokens.type";
+}                                from "express";
+import {RolesGuardDecor}         from "../libs/decorators/roles.decorator";
+import {Roles}                   from "@prisma/client";
+import {AuthGuard}               from "../libs/guards/auth/auth.guard";
+import {RolesGuard}              from "../libs/guards/roles/roles.guard";
+import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
 
 @Controller('auth')
@@ -39,6 +37,7 @@ export class AuthController {
     registerUser(@Body() dto: AuthCreateUserDto): Promise<string> {
         return this.authService.registerUser(dto);
     }
+
     @RolesGuardDecor(Roles.admin)
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
@@ -46,6 +45,7 @@ export class AuthController {
     getTokens(): Promise<TokensType[]> {
         return this.authService.getTokens();
     }
+
     @UsePipes(new ValidationPipe())
     @Post("refresh")
     refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<string> {
