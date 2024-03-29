@@ -30,7 +30,7 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("login")
-    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<string> {
+    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<unknown> {
         return await this.authService.loginUser(dto, response);
     }
 
@@ -39,7 +39,6 @@ export class AuthController {
     registerUser(@Body() dto: AuthCreateUserDto): Promise<string> {
         return this.authService.registerUser(dto);
     }
-
     @RolesGuardDecor(Roles.admin)
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
@@ -47,10 +46,9 @@ export class AuthController {
     getTokens(): Promise<TokensType[]> {
         return this.authService.getTokens();
     }
-
     @UsePipes(new ValidationPipe())
     @Post("refresh")
-    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response, @Req() req: Request): Promise<string> {
-        return this.authService.refreshToken(dto, res, req);
+    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<string> {
+        return this.authService.refreshToken(dto, res);
     }
 }

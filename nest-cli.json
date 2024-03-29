@@ -1,10 +1,36 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/authSlava/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["*/.env"],
-    "watchAssets": true
+    "assets": [
+      "*/.env"
+    ],
+    "watchAssets": true,
+    "webpack": true,
+    "tsConfigPath": "apps/authSlava/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/authSlava",
+  "projects": {
+    "authSlava": {
+      "type": "application",
+      "root": "apps/authSlava",
+      "entryFile": "main",
+      "sourceRoot": "apps/authSlava/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/authSlava/tsconfig.app.json"
+      }
+    },
+    "auth": {
+      "type": "application",
+      "root": "apps/auth",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth/tsconfig.app.json"
+      }
+    }
   }
 }
