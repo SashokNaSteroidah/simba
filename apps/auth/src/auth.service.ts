@@ -19,6 +19,7 @@ import {RefreshTokenDto}         from "./types/refreshToken.dto";
 import {AuthCreateUserDto}       from "./types/authCreateUser.dto";
 import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {LoginUserEventDto}       from "./types/events/loginUserEvent.dto";
+import {RegResponceDto}          from "../../main/src/auth/types/regResponce.dto";
 
 @Injectable()
 export class AuthService {
@@ -87,14 +88,11 @@ export class AuthService {
                 }
             }
         } catch (e) {
-            if (e.status === 401) {
-                throw new HttpException("This users doesn't exist", HttpStatus.BAD_REQUEST);
-            }
             throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
         }
     }
 
-    async regUser(dto: AuthCreateUserDto): Promise<string> {
+    async regUser(dto: AuthCreateUserDto): Promise<RegResponceDto> {
         try {
             const saltOrRounds = 10;
             const hash         = await bcrypt.hash(dto.password, saltOrRounds);
@@ -108,13 +106,10 @@ export class AuthService {
                     email   : dto.email
                 }
             })
-            return "OK"
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === 'P2002') {
-                    throw new HttpException('There is a unique constraint violation, a new user cannot be created with this email or name', HttpStatus.BAD_REQUEST);
-                }
+            return {
+                success: true
             }
+        } catch (e) {
             throw e
         }
     }
