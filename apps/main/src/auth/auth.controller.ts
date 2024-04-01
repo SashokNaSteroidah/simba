@@ -20,6 +20,8 @@ import {AuthGuard}               from "../libs/guards/auth/auth.guard";
 import {RolesGuard}              from "../libs/guards/roles/roles.guard";
 import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
+import {LoginResponceDto}        from "./types/loginResponce.dto";
+import {RegResponceDto}          from "./types/regResponce.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -28,13 +30,13 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("login")
-    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<unknown> {
+    async loginUser(@Body() dto: AuthAuthenticateUserDTO, @Res({passthrough: true}) response: Response): Promise<LoginResponceDto> {
         return await this.authService.loginUser(dto, response);
     }
 
     @UsePipes(new ValidationPipe())
     @Post("registration")
-    registerUser(@Body() dto: AuthCreateUserDto): Promise<string> {
+    registerUser(@Body() dto: AuthCreateUserDto): Promise<RegResponceDto> {
         return this.authService.registerUser(dto);
     }
 

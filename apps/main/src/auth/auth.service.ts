@@ -19,28 +19,32 @@ import {TokensType}                from "./types/tokens.type";
 import {RefreshTokenDto}           from "./types/refreshToken.dto";
 import {Prisma}                    from "@prisma/client";
 import {AuthCreateUserDto}         from "./types/authCreateUser.dto";
+import {LoginResponceDto}          from "./types/loginResponce.dto";
+import {RegResponceDto}            from "./types/regResponce.dto";
 
 @Injectable()
 export class AuthService {
     constructor(@Inject("auth") private readonly communicationClient: ClientProxy) {
     }
 
-    async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<unknown> {
+    async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<LoginResponceDto> {
         try {
             const data: Observable<LoginUserEventDto> = this.communicationClient.send("login", dto);
             const event: LoginUserEventDto            = await firstValueFrom(data)
-            const accessToken                         = event.accessToken;
-            const refreshToken                        = event.refreshToken;
+            const accessToken: string                         = event.accessToken;
+            const refreshToken: string                        = event.refreshToken;
             response.cookie("Cookie", accessToken);
-            return refreshToken;
+            return {
+                refreshToken: refreshToken
+            };
         } catch (e) {
             throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
         }
     }
 
-    async registerUser(dto: AuthCreateUserDto): Promise<string> {
+    async registerUser(dto: AuthCreateUserDto): Promise<RegResponceDto> {
         try {
-            const data: Observable<string> = this.communicationClient.send("registration", dto);
+            const data: Observable<RegResponceDto> = this.communicationClient.send("registration", dto);
             return await firstValueFrom(data)
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -64,7 +68,7 @@ export class AuthService {
     async refreshToken(dto: RefreshTokenDto, response: Response): Promise<string> {
         try {
             const data: Observable<string> = this.communicationClient.send("refresh_token", dto);
-            const cookie                   = firstValueFrom(data)
+            const cookie                   = await firstValueFrom(data)
             response.cookie("Cookie", cookie)
             return "OK"
         } catch (e) {
