@@ -4,7 +4,9 @@ import {
     Get,
     Param,
     Patch,
-    UseGuards
+    UseGuards,
+    UsePipes,
+    ValidationPipe
 } from '@nestjs/common';
 import {
     Roles,
@@ -35,6 +37,7 @@ export class UsersController {
     @RolesGuardDecor(Roles.admin)
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
+    @UsePipes(new ValidationPipe())
     @Patch(":id")
     async patchUsers(@Body() dto: PatchUserDto, @Param() params: PatchUserID): Promise<DefaultOkResponse> {
         return await this.userService.patchUsers(dto, params)

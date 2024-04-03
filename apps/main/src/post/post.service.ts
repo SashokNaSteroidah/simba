@@ -32,7 +32,7 @@ export class PostService {
             })
             return DefaultOkResponseDto
         } catch (e) {
-            throw new HttpException("Can't create post", HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 
@@ -53,7 +53,7 @@ export class PostService {
             })
             return DefaultOkResponseDto
         } catch (e) {
-            throw new HttpException("Can't update post", HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 
@@ -70,7 +70,7 @@ export class PostService {
             return DefaultOkResponseDto
         } catch (e) {
             // console.log(e)
-            throw new HttpException("Can't delete post", HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 

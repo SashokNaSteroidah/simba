@@ -8,9 +8,12 @@ import {
     Response
 }                                  from "express";
 import {AuthAuthenticateUserDTO}   from "./types/authAuthenticateUser.dto";
-import {ClientProxy}               from "@nestjs/microservices";
-import {DEFAULT_BAD_REQUEST_ERROR} from "../libs/consts/errors.consts";
-import {LoginUserEventDto}         from "../../../auth/src/types/events/loginUserEvent.dto";
+import {ClientProxy}       from "@nestjs/microservices";
+import {
+    DEFAULT_BAD_REQUEST_ERROR,
+    DEFAULT_SERVER_ERROR
+}                          from "../libs/consts/errors.consts";
+import {LoginUserEventDto} from "../../../auth/src/types/events/loginUserEvent.dto";
 import {
     firstValueFrom,
     Observable
@@ -32,16 +35,18 @@ export class AuthService {
     async loginUser(dto: AuthAuthenticateUserDTO, response: Response): Promise<LoginResponceDto> {
         try {
             const data: Observable<LoginUserEventDto> = this.communicationClient.send("login", dto);
-            const event: LoginUserEventDto            = await firstValueFrom(data)
+            const event: LoginUserEventDto | null           = await firstValueFrom(data)
+            if (!event){
+                throw new Error()
+            }
             const accessToken: string                         = event.accessToken;
             const refreshToken: string                        = event.refreshToken;
-            console.log(accessToken, refreshToken)
             response.cookie("Cookie", accessToken);
             return {
                 refreshToken: refreshToken
             };
         } catch (e) {
-            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 
@@ -50,12 +55,7 @@ export class AuthService {
             const data: Observable<RegResponceDto> = this.communicationClient.send("registration", dto);
             return await firstValueFrom(data)
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === 'P2002') {
-                    throw new HttpException('There is a unique constraint violation, a new user cannot be created with this email or name', HttpStatus.BAD_REQUEST);
-                }
-            }
-            throw e
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 
@@ -75,7 +75,7 @@ export class AuthService {
             response.cookie("Cookie", cookie)
             return DefaultOkResponseDto
         } catch (e) {
-            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST)
+            throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
 }
