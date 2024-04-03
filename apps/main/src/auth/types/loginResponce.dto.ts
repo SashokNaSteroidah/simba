@@ -1,3 +1,3 @@
 export class LoginResponceDto {
-    refreshToken: string
+  refreshToken: string;
 }

@@ -1,3 +1,3 @@
 export interface DefaultOkResponse {
-    success: boolean;
+  success: boolean;
 }

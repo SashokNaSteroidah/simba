@@ -1,5 +1,5 @@
-import {DefaultOkResponse} from "./defaultOkResponse.interfaces";
+import { DefaultOkResponse } from './defaultOkResponse.interfaces';
 
 export const DefaultOkResponseDto: DefaultOkResponse = {
-    success: true
-}
+  success: true,
+};

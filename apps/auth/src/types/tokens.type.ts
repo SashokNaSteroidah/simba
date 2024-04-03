@@ -1,4 +1,4 @@
 export interface TokensType {
-    key: string;
-    token: string;
+  key: string;
+  token: string;
 }

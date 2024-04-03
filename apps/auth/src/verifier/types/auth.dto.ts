@@ -1,6 +1,4 @@
-import {IsString} from "class-validator";
-
 export interface AuthDto {
-    cookie: string;
-    request: any
+  cookie: string;
+  request: any;
 }

@@ -1,4 +1,4 @@
 export class LoginUserEventDto {
-    accessToken: string;
-    refreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }
