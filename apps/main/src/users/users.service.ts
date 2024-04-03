@@ -11,7 +11,9 @@ import {DatabaseService}      from "../database/database.service";
 import {
     PatchUserDto,
     PatchUserID
-} from "./types/patchUser.dto";
+}                             from "./types/patchUser.dto";
+import {DefaultOkResponse}    from "../libs/response/defaultOkResponse.interfaces";
+import {DefaultOkResponseDto} from "../libs/response/defaultOkResponse.dto";
 
 @Injectable()
 export class UsersService {
@@ -25,7 +27,7 @@ export class UsersService {
         }
     }
 
-    async patchUsers(dto: PatchUserDto, params: PatchUserID): Promise<string> {
+    async patchUsers(dto: PatchUserDto, params: PatchUserID): Promise<DefaultOkResponse> {
         try {
             await this.databaseService.users.update({
                 where: {
@@ -35,7 +37,7 @@ export class UsersService {
                     role: dto.role,
                 }
             })
-            return "OK"
+            return DefaultOkResponseDto
         } catch (e) {
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }

@@ -6,6 +6,8 @@ import {AuthAuthenticateUserDTO} from "./types/authAuthenticateUser.dto";
 import {LoginUserEventDto} from "./types/events/loginUserEvent.dto";
 import {AuthCreateUserDto} from "./types/authCreateUser.dto";
 import {RefreshTokenDto} from "./types/refreshToken.dto";
+import {RegResponceDto} from "../../main/src/auth/types/regResponce.dto";
+import {AuthDto}        from "./verifier/types/auth.dto";
 
 @Controller()
 export class AuthController {
@@ -18,7 +20,7 @@ export class AuthController {
     }
 
     @EventPattern("registration")
-    async regUser(dto: AuthCreateUserDto): Promise<string> {
+    async regUser(dto: AuthCreateUserDto): Promise<RegResponceDto> {
         return await this.authService.regUser(dto);
     }
 
@@ -31,4 +33,5 @@ export class AuthController {
     async refreshToken(dto: RefreshTokenDto): Promise<string> {
         return await this.authService.refreshToken(dto);
     }
+
 }

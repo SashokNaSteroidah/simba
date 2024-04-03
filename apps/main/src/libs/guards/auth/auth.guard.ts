@@ -3,48 +3,42 @@ import {
     ExecutionContext,
     HttpException,
     HttpStatus,
+    Inject,
     Injectable,
 }                                   from '@nestjs/common';
-import {JwtService}                 from "@nestjs/jwt";
-import {jwtConstants}               from "../../consts/jwtSecret.consts";
-import {RedisIntegrationService}    from "../../../redis-integration/redis-integration.service";
 import {DEFAULT_UNAUTHORIZED_ERROR} from "../../consts/errors.consts";
 import {cookieParser}               from "../../parser/cookieParser";
+import {ClientProxy}                from "@nestjs/microservices";
+import {
+    firstValueFrom,
+    Observable
+}                                   from "rxjs";
+import {rethrow}                    from "@nestjs/core/helpers/rethrow";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(
-        private jwtService: JwtService,
-        private readonly redis: RedisIntegrationService
-    ) {
+    constructor(@Inject("auth") private communicationClient: ClientProxy) {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         try {
-            const request     = context.switchToHttp().getRequest();
-            const token       = request.headers.cookie;
+            const request      = context.switchToHttp().getRequest();
+            const token        = request.headers.cookie;
             const parsedCookie = cookieParser(token)
             if (!parsedCookie) {
                 return false
             }
-            const payload = request['user'] = await this.jwtService.verifyAsync(
-                parsedCookie,
-                {
-                    secret: jwtConstants.secret
-                }
-            );
-            const user           = await this.redis.keys(`*_${payload.username}_*`)
-            const tokenFromRedis = await this.redis.get(user[0])
-            if (tokenFromRedis === null) {
+            const sendBody = {
+                cookie : parsedCookie,
+                request: request['user']
+            }
+            const data: Observable<boolean | null>     = this.communicationClient.send("check_auth", sendBody)
+            const parcedValueFromAuthService: boolean | null = await firstValueFrom(data)
+            if (!parcedValueFromAuthService) {
                 throw new Error()
             }
-            const tokenIsValid = tokenFromRedis === parsedCookie
-            if (!tokenIsValid) {
-                throw new Error()
-            }
-
             return true
-        } catch {
+        } catch (e) {
             throw new HttpException(DEFAULT_UNAUTHORIZED_ERROR, HttpStatus.UNAUTHORIZED);
         }
     }

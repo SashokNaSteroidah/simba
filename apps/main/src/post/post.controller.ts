@@ -25,7 +25,8 @@ import {DeletePostDto} from "./types/deletePost.dto";
 import {
     PatchPostDto,
     PatchPostID
-}                     from "./types/patchPost.dto";
+}                             from "./types/patchPost.dto";
+import {DefaultOkResponse}    from "../libs/response/defaultOkResponse.interfaces";
 
 @Controller('post')
 export class PostController {
@@ -37,7 +38,7 @@ export class PostController {
     @UseGuards(RolesGuard)
     @UsePipes(new ValidationPipe())
     @Post()
-    async CreatePost(@Body() dto: CreatePostDto): Promise<string> {
+    async CreatePost(@Body() dto: CreatePostDto): Promise<DefaultOkResponse> {
         return await this.postService.CreatePost(dto)
     }
 
@@ -51,7 +52,7 @@ export class PostController {
     @UseGuards(RolesGuard)
     @UsePipes(new ValidationPipe())
     @Patch(":id")
-    async UpdatePost(@Body() dto: PatchPostDto, @Param() params: PatchPostID): Promise<string> {
+    async UpdatePost(@Body() dto: PatchPostDto, @Param() params: PatchPostID): Promise<DefaultOkResponse> {
         return await this.postService.PatchPost(dto, params)
     }
 
@@ -61,7 +62,7 @@ export class PostController {
     @UseGuards(RolesGuard)
     @UsePipes(new ValidationPipe())
     @Delete(":id")
-    async DeletePost(@Param() params: DeletePostDto): Promise<string> {
+    async DeletePost(@Param() params: DeletePostDto): Promise<DefaultOkResponse> {
         return await this.postService.DeletePost(params)
     }
 
