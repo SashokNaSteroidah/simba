@@ -3,7 +3,6 @@ import {AuthController}         from './auth.controller';
 import {AuthService}            from './auth.service';
 import {JwtModule}              from "@nestjs/jwt";
 import {jwtConstants}           from "../libs/consts/jwtSecret.consts";
-import {RedisIntegrationModule} from "../redis-integration/redis-integration.module";
 import {
     ClientsModule,
     Transport
@@ -12,7 +11,6 @@ import {
 @Module({
     imports    :
         [
-            RedisIntegrationModule,
             JwtModule.register({
                 global     : true,
                 secret     : jwtConstants.secret,

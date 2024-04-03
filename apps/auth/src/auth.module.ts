@@ -3,6 +3,7 @@ import {AuthController}         from './auth.controller';
 import {AuthService}            from './auth.service';
 import {JwtModule}              from "@nestjs/jwt";
 import {RedisIntegrationModule} from "./redis-integration/redis-integration.module";
+import { VerifierModule } from './verifier/verifier.module';
 import {DatabaseModule}         from "./database/database.module";
 import {jwtConstants}           from "./consts/jwtSecret.consts";
 
@@ -14,7 +15,8 @@ import {jwtConstants}           from "./consts/jwtSecret.consts";
             global     : true,
             secret     : jwtConstants.secret,
             signOptions: {expiresIn: '1800s'},
-        })
+        }),
+        VerifierModule
     ],
     controllers: [AuthController],
     providers  : [AuthService],

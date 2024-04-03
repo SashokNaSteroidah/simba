@@ -3,8 +3,9 @@ import {
     ExecutionContext,
     HttpException,
     HttpStatus,
+    Inject,
     Injectable
-}                        from "@nestjs/common";
+} from "@nestjs/common";
 import {jwtConstants}    from "../../consts/jwtSecret.consts";
 import {JwtService}      from "@nestjs/jwt";
 import {Reflector}       from "@nestjs/core";
@@ -13,11 +14,17 @@ import {
     DEFAULT_FORBIDDEN_ERROR,
 }                        from "../../consts/errors.consts";
 import {cookieParser}    from "../../parser/cookieParser";
+import {ClientProxy} from "@nestjs/microservices";
+import {
+    firstValueFrom,
+    Observable
+} from "rxjs";
+import {request} from "express";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
     constructor(
-        private readonly jwtService: JwtService,
+        @Inject("auth") private readonly authService: ClientProxy,
         private reflector: Reflector
     ) {
     }
@@ -27,19 +34,22 @@ export class RolesGuard implements CanActivate {
             const roles       = this.reflector.get(RolesGuardDecor, context.getHandler());
             const req         = context.switchToHttp().getRequest()
             const token       = req.headers.cookie;
-            const parsecCookie = cookieParser(token)
-            const payload     = req['user'] = await this.jwtService.verifyAsync(
-                parsecCookie,
-                {
-                    secret: jwtConstants.secret
-                }
-            );
-            const role        = payload.role === roles
-            if (role) {
-                return true
+            const parsedCookie = cookieParser(token)
+            if (!parsedCookie) {
+                return false
             }
-            throw new Error()
-        } catch (e) {
+            const sendData = {
+                roles: roles,
+                cookie: parsedCookie,
+                request: request["user"]
+            }
+            const data: Observable<boolean | null> = this.authService.send("check_role", sendData)
+            const parcedDataFromAuthService: boolean | null = await firstValueFrom(data)
+            if (!parcedDataFromAuthService) {
+                throw new Error()
+            }
+            return true
+        } catch {
             throw new HttpException(DEFAULT_FORBIDDEN_ERROR, HttpStatus.FORBIDDEN);
         }
     }

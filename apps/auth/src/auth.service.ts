@@ -33,24 +33,26 @@ export class AuthService {
             await this.redis.expire(redisUniqueKey, 1800)
         } catch (e) {
             console.error("Redis error: " + e.message)
+            return false
         }
         return true
     }
 
     async loginUser(dto: AuthAuthenticateUserDTO): Promise<LoginUserEventDto> {
         try {
-            const user= await this.databaseService.users.findFirst({where: {name: dto.name}})
+            const user                     = await this.databaseService.users.findFirst({where: {name: dto.name}})
             const isPasswordValid: boolean = await bcrypt.compare(dto.password, user.password.trim())
             if (!isPasswordValid) {
-                throw new UnauthorizedException();
+                return null
             }
-            const payload       = {
-                id      : user.id,
-                username: user.name,
-                role    : user.role
-            };
             const nameFromRedis = await this.redis.keys(`*_${user.name}_*`)
-            if (nameFromRedis.length === 0) {
+            const data          = await this.databaseService.tokens.findFirst({where: {client_name: dto.name}})
+            if (nameFromRedis.length === 0 && !data) {
+                const payload      = {
+                    id      : user.id,
+                    username: user.name,
+                    role    : user.role
+                };
                 const token        = await this.jwtService.signAsync(payload)
                 const refreshToken = await this.jwtService.signAsync(payload)
                 await this.setToRedisNewToken(user.name, token)
@@ -62,33 +64,49 @@ export class AuthService {
                     }
                 })
                 return {
-                    accessToken: token,
+                    accessToken : token,
                     refreshToken: refreshToken
                 }
-            } else {
-                const tokensFromRedis = await this.redis.get(nameFromRedis[0])
-                const data            = await this.databaseService.tokens.findFirst({where: {client_name: dto.name}})
-                if (!data) {
-                    const refreshToken = await this.jwtService.signAsync(payload)
-                    await this.databaseService.tokens.create({
-                        data: {
-                            token      : refreshToken,
-                            client_name: dto.name,
-                            expires_at : new Date()
-                        }
-                    })
-                    return {
-                        accessToken: tokensFromRedis,
-                        refreshToken: refreshToken
-                    }
-                }
+            }
+            if (nameFromRedis.length === 0) {
+                const payload     = {
+                    id      : user.id,
+                    username: user.name,
+                    role    : user.role
+                };
+                const accessToken = await this.jwtService.signAsync(payload)
+                await this.setToRedisNewToken(user.name, accessToken)
                 return {
-                    accessToken: tokensFromRedis,
+                    accessToken : accessToken,
                     refreshToken: data.token
                 }
             }
+            const tokensFromRedis = await this.redis.get(nameFromRedis[0])
+            if (!data) {
+                const payload      = {
+                    id      : user.id,
+                    username: user.name,
+                    role    : user.role
+                };
+                const refreshToken = await this.jwtService.signAsync(payload)
+                await this.databaseService.tokens.create({
+                    data: {
+                        token      : refreshToken,
+                        client_name: dto.name,
+                        expires_at : new Date()
+                    }
+                })
+                return {
+                    accessToken : tokensFromRedis,
+                    refreshToken: refreshToken
+                }
+            }
+            return {
+                accessToken : tokensFromRedis,
+                refreshToken: data.token
+            }
         } catch (e) {
-            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST);
+            return null
         }
     }
 
@@ -143,9 +161,9 @@ export class AuthService {
                 await this.setToRedisNewToken(user.name, token)
                 return token
             }
-            throw new Error()
+            return null
         } catch (e) {
-            throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST)
+            return null
         }
     }
 }

@@ -3,21 +3,23 @@ import {PostController} from './post.controller';
 import {PostService}    from './post.service';
 import {DatabaseModule} from "../database/database.module";
 import {
-    JwtModule,
-}                               from "@nestjs/jwt";
-import {jwtConstants}           from "../libs/consts/jwtSecret.consts";
-import {RedisIntegrationModule} from "../redis-integration/redis-integration.module";
+    ClientsModule,
+    Transport
+} from "@nestjs/microservices";
 
 @Module({
     imports    :
         [
-            RedisIntegrationModule,
+            ClientsModule.register([
+                {
+                    name     : "auth",
+                    transport: Transport.TCP,
+                    options  : {
+                        port: 3002
+                    }
+                }
+            ]),
             DatabaseModule,
-            JwtModule.register({
-                global     : true,
-                secret     : jwtConstants.secret,
-                signOptions: {expiresIn: '1800s'},
-            }),
         ],
     controllers: [PostController],
     providers  : [PostService]

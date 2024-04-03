@@ -22,6 +22,7 @@ import {TokensType}              from "./types/tokens.type";
 import {RefreshTokenDto}         from "./types/refreshToken.dto";
 import {LoginResponceDto}        from "./types/loginResponce.dto";
 import {RegResponceDto}          from "./types/regResponce.dto";
+import {DefaultOkResponse}       from "../libs/response/defaultOkResponse.interfaces";
 
 @Controller('auth')
 export class AuthController {
@@ -50,7 +51,7 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post("refresh")
-    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<string> {
+    refreshToken(@Body() dto: RefreshTokenDto, @Res({passthrough: true}) res: Response): Promise<DefaultOkResponse> {
         return this.authService.refreshToken(dto, res);
     }
 }

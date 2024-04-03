@@ -13,14 +13,16 @@ import {
 import {posts} from "@prisma/client";
 import {
     DEFAULT_SERVER_ERROR
-}              from "../libs/consts/errors.consts";
+}                             from "../libs/consts/errors.consts";
+import {DefaultOkResponseDto} from "../libs/response/defaultOkResponse.dto";
+import {DefaultOkResponse}    from "../libs/response/defaultOkResponse.interfaces";
 
 @Injectable()
 export class PostService {
     constructor(private readonly databaseService: DatabaseService) {
     }
 
-    async CreatePost(dto: CreatePostDto): Promise<string> {
+    async CreatePost(dto: CreatePostDto): Promise<DefaultOkResponse> {
         try {
             await this.databaseService.posts.create({
                 data: {
@@ -28,13 +30,13 @@ export class PostService {
                     content: dto.content,
                 }
             })
-            return "OK"
+            return DefaultOkResponseDto
         } catch (e) {
             throw new HttpException("Can't create post", HttpStatus.BAD_REQUEST);
         }
     }
 
-    async PatchPost(dto: PatchPostDto, params: PatchPostID): Promise<string> {
+    async PatchPost(dto: PatchPostDto, params: PatchPostID): Promise<DefaultOkResponse> {
         if (!params && !params.id) {
             throw new HttpException("Invalid params", HttpStatus.BAD_REQUEST)
         }
@@ -49,13 +51,13 @@ export class PostService {
                     updatedAt: new Date(),
                 }
             })
-            return "OK"
+            return DefaultOkResponseDto
         } catch (e) {
             throw new HttpException("Can't update post", HttpStatus.BAD_REQUEST);
         }
     }
 
-    async DeletePost(params: DeletePostDto): Promise<string> {
+    async DeletePost(params: DeletePostDto): Promise<DefaultOkResponse> {
         if (!params && !params.id) {
             throw new HttpException("Invalid params", HttpStatus.BAD_REQUEST)
         }
@@ -65,7 +67,7 @@ export class PostService {
                     id: +params.id
                 }
             })
-            return "OK"
+            return DefaultOkResponseDto
         } catch (e) {
             // console.log(e)
             throw new HttpException("Can't delete post", HttpStatus.BAD_REQUEST);

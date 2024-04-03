@@ -21,6 +21,8 @@ import {Prisma}                    from "@prisma/client";
 import {AuthCreateUserDto}         from "./types/authCreateUser.dto";
 import {LoginResponceDto}          from "./types/loginResponce.dto";
 import {RegResponceDto}            from "./types/regResponce.dto";
+import {DefaultOkResponseDto}      from "../libs/response/defaultOkResponse.dto";
+import {DefaultOkResponse}         from "../libs/response/defaultOkResponse.interfaces";
 
 @Injectable()
 export class AuthService {
@@ -33,6 +35,7 @@ export class AuthService {
             const event: LoginUserEventDto            = await firstValueFrom(data)
             const accessToken: string                         = event.accessToken;
             const refreshToken: string                        = event.refreshToken;
+            console.log(accessToken, refreshToken)
             response.cookie("Cookie", accessToken);
             return {
                 refreshToken: refreshToken
@@ -65,12 +68,12 @@ export class AuthService {
         }
     }
 
-    async refreshToken(dto: RefreshTokenDto, response: Response): Promise<string> {
+    async refreshToken(dto: RefreshTokenDto, response: Response): Promise<DefaultOkResponse> {
         try {
             const data: Observable<string> = this.communicationClient.send("refresh_token", dto);
             const cookie                   = await firstValueFrom(data)
             response.cookie("Cookie", cookie)
-            return "OK"
+            return DefaultOkResponseDto
         } catch (e) {
             throw new HttpException(DEFAULT_BAD_REQUEST_ERROR, HttpStatus.BAD_REQUEST)
         }

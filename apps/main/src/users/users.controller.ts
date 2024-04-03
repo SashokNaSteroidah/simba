@@ -17,7 +17,8 @@ import {RolesGuard}      from "../libs/guards/roles/roles.guard";
 import {
     PatchUserDto,
     PatchUserID
-}                        from "./types/patchUser.dto";
+}                          from "./types/patchUser.dto";
+import {DefaultOkResponse} from "../libs/response/defaultOkResponse.interfaces";
 
 @Controller('users')
 export class UsersController {
@@ -35,7 +36,7 @@ export class UsersController {
     @UseGuards(AuthGuard)
     @UseGuards(RolesGuard)
     @Patch(":id")
-    async patchUsers(@Body() dto: PatchUserDto, @Param() params: PatchUserID): Promise<string> {
+    async patchUsers(@Body() dto: PatchUserDto, @Param() params: PatchUserID): Promise<DefaultOkResponse> {
         return await this.userService.patchUsers(dto, params)
     }
 
