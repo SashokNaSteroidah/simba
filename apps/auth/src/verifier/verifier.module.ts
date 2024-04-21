@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { RedisIntegrationModule } from '../redis-integration/redis-integration.module';
 import { DatabaseModule } from '../database/database.module';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../consts/jwtSecret.consts';
 import { VerifierService } from './verifier.service';
 import { VerifierController } from './verifier.controller';
+import {config} from "../../../../conf";
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { VerifierController } from './verifier.controller';
     DatabaseModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
+      secret: config.GENERAL.secret_for_jwt,
       signOptions: { expiresIn: '1800s' },
     }),
   ],

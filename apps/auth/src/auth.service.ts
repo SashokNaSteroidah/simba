@@ -22,8 +22,8 @@ export class AuthService {
   async setToRedisNewToken(username: string, token: string): Promise<unknown> {
     const redisUniqueKey = `accessToken_${username}_${Math.random().toString(36).substring(2, 9)}`;
     try {
-      await this.redis.set(redisUniqueKey, token);
-      await this.redis.expire(redisUniqueKey, 1800);
+      await this.redis.redisClient.set(redisUniqueKey, token);
+      await this.redis.redisClient.expire(redisUniqueKey, 1800);
     } catch (e) {
       console.error('Redis error: ' + e.message);
       return false;
@@ -43,7 +43,7 @@ export class AuthService {
       if (!isPasswordValid) {
         return null;
       }
-      const nameFromRedis = await this.redis.keys(`*_${user.name}_*`);
+      const nameFromRedis = await this.redis.redisClient.keys(`*_${user.name}_*`);
       const data = await this.databaseService.tokens.findFirst({
         where: { client_name: dto.name },
       });
@@ -81,7 +81,7 @@ export class AuthService {
           refreshToken: data.token,
         };
       }
-      const tokensFromRedis = await this.redis.get(nameFromRedis[0]);
+      const tokensFromRedis = await this.redis.redisClient.get(nameFromRedis[0]);
       if (!data) {
         const payload = {
           id: user.id,
@@ -133,10 +133,10 @@ export class AuthService {
   }
 
   async getTokens(): Promise<TokensType[]> {
-    const keys = await this.redis.keys('*');
+    const keys = await this.redis.redisClient.keys('*');
     return await Promise.all(
       keys.map(async (key) => {
-        const token = await this.redis.get(key);
+        const token = await this.redis.redisClient.get(key);
         return {
           key,
           token,
@@ -159,9 +159,9 @@ export class AuthService {
           username: user.name,
           role: user.role,
         };
-        const nameFromRedis = await this.redis.keys(`*_${user.name}_*`);
+        const nameFromRedis = await this.redis.redisClient.keys(`*_${user.name}_*`);
         if (nameFromRedis.length !== 0) {
-          await this.redis.del(nameFromRedis[0]);
+          await this.redis.redisClient.del(nameFromRedis[0]);
         }
         const token = await this.jwtService.signAsync(payload);
         await this.setToRedisNewToken(user.name, token);

@@ -5,10 +5,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN yarn
-COPY . .
+COPY ./ ./
 RUN yarn prisma generate
 RUN yarn run build
 
-CMD [ "node", "dist/main.js" ]
+CMD [ "yarn", "start:dev", "auth" ]
 
-EXPOSE 3001
+EXPOSE 3002

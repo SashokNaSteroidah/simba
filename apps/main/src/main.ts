@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import * as dns from 'dns';
+import {config} from "../../../conf";
 dns.setDefaultResultOrder('ipv4first');
 
 async function bootstrap(): Promise<void> {
@@ -11,8 +12,8 @@ async function bootstrap(): Promise<void> {
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   app.enableCors();
-  await app.listen(process.env.PORT, process.env.HOST, () =>
-    console.log(`App is listening ${process.env.HOST}:${process.env.PORT}`),
+  await app.listen(config.GENERAL.main_port, () =>
+    console.log(`App is started ${config.GENERAL.main_host}:${config.GENERAL.main_port}`),
   );
 }
 

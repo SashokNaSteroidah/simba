@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from '../../../main/src/libs/consts/jwtSecret.consts';
 import { AuthDto } from './types/auth.dto';
 import { RedisIntegrationService } from '../redis-integration/redis-integration.service';
 import { RoleDto } from './types/role.dto';
+import {config} from "../../../../conf";
 
 @Injectable()
 export class VerifierService {
@@ -17,11 +17,11 @@ export class VerifierService {
       const payload = (dto.request = await this.jwtService.verifyAsync(
         dto.cookie,
         {
-          secret: jwtConstants.secret,
+          secret: config.GENERAL.secret_for_jwt,
         },
       ));
-      const user = await this.redis.keys(`*_${payload.username}_*`);
-      const tokenFromRedis = await this.redis.get(user[0]);
+      const user = await this.redis.redisClient.keys(`*_${payload.username}_*`);
+      const tokenFromRedis = await this.redis.redisClient.get(user[0]);
       if (tokenFromRedis === null) {
         return null;
       }
@@ -37,15 +37,13 @@ export class VerifierService {
 
   async checkRole(dto: RoleDto): Promise<boolean | null> {
     try {
-      console.log(dto);
       const payload = (dto.request = await this.jwtService.verifyAsync(
         dto.cookie,
         {
-          secret: jwtConstants.secret,
+          secret: config.GENERAL.secret_for_jwt,
         },
       ));
       const role = payload.role === dto.roles;
-      console.log(role);
       if (!role) {
         return null;
       }

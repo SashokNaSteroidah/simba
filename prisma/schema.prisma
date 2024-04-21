@@ -1,15 +1,19 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["main", "auth"]
 }
 
 enum Roles {
   admin
   user
+
+  @@schema("main")
 }
 
 model users {
@@ -18,6 +22,8 @@ model users {
   name     String @unique @db.VarChar(100)
   password String @db.Char(80)
   role     Roles
+
+  @@schema("main")
 }
 
 model posts {
@@ -26,6 +32,8 @@ model posts {
   content   String   @db.VarChar(1000)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@schema("main")
 }
 
 model tokens {
@@ -33,4 +41,6 @@ model tokens {
   client_name String   @unique
   expires_at  DateTime
   token       String
+
+  @@schema("auth")
 }

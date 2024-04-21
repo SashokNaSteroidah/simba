@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { DatabaseModule } from '../database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import {config} from "../../../../conf";
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         name: 'auth',
         transport: Transport.TCP,
         options: {
-          port: 3002,
+          host: config.GENERAL.auth_host,
+          port: +config.GENERAL.auth_port,
         },
       },
     ]),

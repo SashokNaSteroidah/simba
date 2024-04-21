@@ -3,12 +3,19 @@ declare global {
     interface ProcessEnv {
       DATABASE_URL: string;
       NODE_ENV: 'development' | 'production';
-      REDIS_URL: string;
-      REDIS_HOST: string;
-      REDIS_PORT: string;
+
+      MAIN_PORT: string;
+      MAIN_HOST: string;
+
+      AUTH_PORT: string,
+      AUTH_HOST: string,
+      AUTH_REDIS_URL: string;
+      AUTH_REDIS_HOST: string;
+      AUTH_REDIS_PORT: string;
+
       SECRET_FOR_JWT: string;
-      PORT: string;
-      HOST: string;
+
+      AWS_REGION: string
     }
   }
 }

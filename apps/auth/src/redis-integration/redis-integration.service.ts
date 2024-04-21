@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
+import {config}       from "../../../../conf";
 @Injectable()
-export class RedisIntegrationService extends Redis {
+export class RedisIntegrationService{
+  readonly redisClient = new Redis(config.AUTH.redis_url_auth)
   onModuleInit(): void {
-    console.log(process.env.REDIS_PORT, process.env.REDIS_HOST);
+    this.redisClient.connect(() => console.log("Redis successfully connected"))
   }
   onModuleDestroy(): void {
-    this.disconnect();
+    this.redisClient.disconnect();
   }
 }
