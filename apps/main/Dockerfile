@@ -6,7 +6,8 @@ COPY package*.json ./
 
 RUN yarn
 COPY ./ ./
-RUN yarn prisma generate
+RUN npm i -g prisma
+RUN prisma generate
 RUN yarn run build
 
 CMD [ "yarn", "start:dev", "main" ]

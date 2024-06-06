@@ -1,4 +1,5 @@
 version: '3.9'
+
 services:
   app:
     build:
@@ -13,6 +14,7 @@ services:
       - MAIN_HOST=app
       - AUTH_PORT=3002
       - AUTH_HOST=auth
+
   auth:
     build:
       context: .
@@ -28,6 +30,7 @@ services:
       - AUTH_REDIS_URL=redis://redis:6379/0
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
+
   redis:
     image: redis
     restart: always
@@ -47,6 +50,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
   minio:
     image: minio/minio
     ports:
@@ -54,6 +58,8 @@ services:
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
+    volumes:
+      - minio:var/lib/minio/data
     command:
       - server
       - /data
@@ -62,6 +68,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+
   nginx:
     image: nginx:latest
     ports:
@@ -74,3 +81,4 @@ services:
 volumes:
   pgdata:
   redisdata:
+  minio:

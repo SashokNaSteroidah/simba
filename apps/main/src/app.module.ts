@@ -22,7 +22,4 @@ import { UsersModule } from './users/users.module';
   providers: [AppService],
 })
 export class AppModule {
-  // configure(consumer: MiddlewareConsumer) {
-  //     consumer.apply(LoggerMiddleware).forRoutes('*');
-  // }
 }
