@@ -20,9 +20,11 @@ import {
 
 @Injectable()
 export class UsersService {
+
+    private readonly logger = new Logger(UsersService.name)
+
     constructor(
         private readonly databaseService: DatabaseService,
-        private readonly logger = new Logger(UsersService.name)
     ) {
     }
 

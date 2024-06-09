@@ -31,8 +31,9 @@ import {
 
 @Injectable()
 export class AuthService {
+
+    private readonly logger = new Logger(AuthService.name)
     constructor(
-        private readonly logger = new Logger(AuthService.name),
         @Inject('auth') private readonly communicationClient: ClientProxy,
     ) {
     }

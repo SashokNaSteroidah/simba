@@ -22,8 +22,10 @@ import {
 
 @Injectable()
 export class PostService {
+
+    private readonly logger = new Logger(PostService.name)
+
     constructor(
-        private readonly logger = new Logger(PostService.name),
         private readonly databaseService: DatabaseService
     ) {
     }
@@ -61,7 +63,7 @@ export class PostService {
     ): Promise<DefaultOkResponse> {
         if (!params && !params.id) {
             this.logger.warn(mLog.log({
-                warn  : "Invalid params",
+                warn   : "Invalid params",
                 method : httpMethods.PATCH,
                 handler: this.PatchPost.name,
                 path   : "/api/post",
@@ -102,7 +104,7 @@ export class PostService {
     async DeletePost(params: DeletePostDto): Promise<DefaultOkResponse> {
         if (!params && !params.id) {
             this.logger.warn(mLog.log({
-                warn  : "Invalid params",
+                warn   : "Invalid params",
                 method : httpMethods.DELETE,
                 handler: this.DeletePost.name,
                 path   : "/api/post",
@@ -147,6 +149,7 @@ export class PostService {
             return data
         } catch (e) {
             this.logger.error(mLog.log({
+                error  : JSON.stringify(e),
                 handler: this.getPosts.name,
                 path   : "/api/post",
                 method : httpMethods.GET,

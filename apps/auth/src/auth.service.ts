@@ -19,8 +19,9 @@ import {
 
 @Injectable()
 export class AuthService {
+
+    private readonly logger = new Logger(AuthService.name)
     constructor(
-        private readonly logger = new Logger(AuthService.name),
         private readonly databaseService: DatabaseService,
         private readonly jwtService: JwtService,
         private readonly redis: RedisIntegrationService,

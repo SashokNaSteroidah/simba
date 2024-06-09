@@ -29,9 +29,11 @@ import {
 
 @Controller('users')
 export class UsersController {
+
+    private readonly logger = new Logger(UsersController.name)
+
     constructor(
         private readonly userService: UsersService,
-        private readonly logger = new Logger(UsersController.name)
     ) {
     }
 

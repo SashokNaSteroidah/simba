@@ -8,6 +8,7 @@ import {
     mLog
 }                        from "utils-nestjs";
 import {Logger}          from "@nestjs/common";
+import tracer            from "./tracer";
 dns.setDefaultResultOrder('ipv4first');
 
 async function bootstrap(): Promise<void> {
@@ -15,6 +16,7 @@ async function bootstrap(): Promise<void> {
     const app    = await NestFactory.create(AppModule, {
         rawBody: true,
     });
+    await tracer.start()
     mLog.config({
         objectToLog       : false,
         disableColor      : true,

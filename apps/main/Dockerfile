@@ -7,9 +7,9 @@ COPY package*.json ./
 RUN yarn
 COPY ./ ./
 RUN npm i -g prisma
-RUN prisma generate
+RUN yarn prisma generate
 RUN yarn run build
 
-CMD [ "yarn", "start:dev", "main" ]
+CMD [ "yarn", "start", "main" ]
 
 EXPOSE 3001

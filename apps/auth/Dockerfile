@@ -6,9 +6,10 @@ COPY package*.json ./
 
 RUN yarn
 COPY ./ ./
+RUN npm i -g prisma
 RUN yarn prisma generate
 RUN yarn run build
 
-CMD [ "yarn", "start:dev", "auth" ]
+CMD [ "yarn", "start", "auth" ]
 
 EXPOSE 3002

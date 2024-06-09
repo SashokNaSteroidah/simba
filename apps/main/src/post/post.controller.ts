@@ -33,8 +33,10 @@ import {
 
 @Controller('post')
 export class PostController {
+
+    private readonly logger = new Logger(PostController.name)
+
     constructor(
-        private readonly logger = new Logger(PostController.name),
         private readonly postService: PostService
     ) {
     }

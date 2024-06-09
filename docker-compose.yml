@@ -7,6 +7,7 @@ services:
       dockerfile: apps/main/Dockerfile
     expose:
       - "3001"
+    restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
       - SECRET_FOR_JWT=Ahv)y,i]U9Q(QE_
@@ -14,13 +15,17 @@ services:
       - MAIN_HOST=app
       - AUTH_PORT=3002
       - AUTH_HOST=auth
+    depends_on:
+      - postgres
+      - nginx
 
   auth:
     build:
       context: .
       dockerfile: apps/auth/Dockerfile
-    ports:
-      - "3002:3002"
+    expose:
+      - "3002"
+    restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
       - SECRET_FOR_JWT=Ahv)y,i]U9Q(QE_
@@ -30,12 +35,15 @@ services:
       - AUTH_REDIS_URL=redis://redis:6379/0
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
 
   redis:
     image: redis
     restart: always
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redisdata:/var/lib/redis/data
 
@@ -46,39 +54,40 @@ services:
       POSTGRES_DB: "root"
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "root"
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  minio:
-    image: minio/minio
-    ports:
-      - '9001:9000'
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    volumes:
-      - minio:var/lib/minio/data
-    command:
-      - server
-      - /data
-    healthcheck:
-      test: [ 'CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live' ]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+  #  minio:
+  #    image: minio/minio
+  #    ports:
+  #      - '9001:9000'
+  #    environment:
+  #      MINIO_ACCESS_KEY: minio
+  #      MINIO_SECRET_KEY: minio123
+  #    command:
+  #      - server
+  #      - /data
+  #    healthcheck:
+  #      test: [ 'CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live' ]
+  #      interval: 30s
+  #      timeout: 20s
+  #      retries: 3
 
   nginx:
     image: nginx:latest
     ports:
       - "3001:3001"
+    restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - app
 
 volumes:
   pgdata:
   redisdata:
-  minio:
+
+networks:
+  default:
+    driver: bridge
+    name: simba
