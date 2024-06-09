@@ -16,7 +16,7 @@ const sdk = new opentelemetry.NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: "Simba-main",
+        [SemanticResourceAttributes.SERVICE_NAME]: "Simba-auth-service",
     }),
 });
 

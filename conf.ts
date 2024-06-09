@@ -1,3 +1,4 @@
+
 export const config = {
     GENERAL: {
         auth_host: process.env.AUTH_HOST,
@@ -14,4 +15,7 @@ export const config = {
         redis_host_auth: process.env.AUTH_REDIS_HOST,
         redis_url_auth: process.env.AUTH_REDIS_URL,
     },
+    TRACE: {
+        url: process.env.URL_OTEL_TRASES
+    }
 };

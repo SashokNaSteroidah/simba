@@ -5,8 +5,10 @@ import {
     Transport
 }                    from '@nestjs/microservices';
 import {config}      from "../../../conf";
+import tracer        from "./tracer";
 
 async function bootstrap() {
+    await tracer.start()
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(
         AuthModule,
         {

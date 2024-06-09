@@ -13,6 +13,8 @@ declare global {
       AUTH_REDIS_HOST: string;
       AUTH_REDIS_PORT: string;
 
+      URL_OTEL_TRASES: string
+
       SECRET_FOR_JWT: string;
 
       AWS_REGION: string

@@ -1,3 +1,4 @@
+import tracer from './tracer';
 import {NestFactory}     from '@nestjs/core';
 import {AppModule}       from './app.module';
 import * as cookieParser from 'cookie-parser';
@@ -8,15 +9,14 @@ import {
     mLog
 }                        from "utils-nestjs";
 import {Logger}          from "@nestjs/common";
-import tracer            from "./tracer";
 dns.setDefaultResultOrder('ipv4first');
 
 async function bootstrap(): Promise<void> {
+    await tracer.start()
     const logger = new Logger()
     const app    = await NestFactory.create(AppModule, {
         rawBody: true,
     });
-    await tracer.start()
     mLog.config({
         objectToLog       : false,
         disableColor      : true,
