@@ -1,3 +1,4 @@
+import tracer        from "./tracer";
 import {NestFactory} from '@nestjs/core';
 import {AuthModule}  from './auth.module';
 import {
@@ -5,7 +6,6 @@ import {
     Transport
 }                    from '@nestjs/microservices';
 import {config}      from "../../../conf";
-import tracer        from "./tracer";
 
 async function bootstrap() {
     await tracer.start()

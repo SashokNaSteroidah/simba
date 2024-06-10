@@ -15,7 +15,7 @@ services:
       - MAIN_HOST=app
       - AUTH_PORT=3002
       - AUTH_HOST=auth
-      - URL_OTEL_TRASES=http://signoz-otel-collector:4318/v1/traces
+      - URL_OTEL_TRASES=http://otel-collector:4318/v1/traces
     depends_on:
       - postgres
       - nginx
@@ -36,7 +36,7 @@ services:
       - AUTH_REDIS_URL=redis://redis:6379/0
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
-      - URL_OTEL_TRASES=http://signoz-otel-collector:4318/v1/traces
+      - URL_OTEL_TRASES=http://otel-collector:4318/v1/traces
     depends_on:
       - postgres
       - redis
