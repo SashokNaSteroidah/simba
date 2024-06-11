@@ -18,6 +18,7 @@ services:
       - URL_OTEL_TRASES=http://jaeger:4317
     depends_on:
       - postgres
+      - jaeger
 
   auth:
     build:
@@ -39,6 +40,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - jaeger
 
 
   redis:
