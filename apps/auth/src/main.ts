@@ -1,6 +1,6 @@
-import tracer        from "./tracer";
 import {NestFactory} from '@nestjs/core';
 import {AuthModule}  from './auth.module';
+import tracer        from "./tracer";
 import {
     MicroserviceOptions,
     Transport

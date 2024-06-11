@@ -1,6 +1,6 @@
-import tracer from './tracer';
 import {NestFactory}     from '@nestjs/core';
 import {AppModule}       from './app.module';
+import tracer            from "./tracer";
 import * as cookieParser from 'cookie-parser';
 import * as dns          from 'dns';
 import {config}          from "../../../conf";
@@ -9,6 +9,7 @@ import {
     mLog
 }                        from "utils-nestjs";
 import {Logger}          from "@nestjs/common";
+
 dns.setDefaultResultOrder('ipv4first');
 
 async function bootstrap(): Promise<void> {

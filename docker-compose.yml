@@ -15,10 +15,9 @@ services:
       - MAIN_HOST=app
       - AUTH_PORT=3002
       - AUTH_HOST=auth
-      - URL_OTEL_TRASES=http://otel-collector:4318/v1/traces
+      - URL_OTEL_TRASES=http://jaeger:4317
     depends_on:
       - postgres
-      - nginx
 
   auth:
     build:
@@ -36,10 +35,11 @@ services:
       - AUTH_REDIS_URL=redis://redis:6379/0
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
-      - URL_OTEL_TRASES=http://otel-collector:4318/v1/traces
+      - URL_OTEL_TRASES=http://jaeger:4317
     depends_on:
       - postgres
       - redis
+
 
   redis:
     image: redis
@@ -48,6 +48,7 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/var/lib/redis/data
+
 
   postgres:
     image: postgres
@@ -81,13 +82,57 @@ services:
     image: nginx:latest
     ports:
       - "3001:3001"
+      - "8000:8000"
+      - "8001:8001"
+      - "16686:16686"
     restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+      - grafana
+      - jaeger
+      - dozzle
+      - auth
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    expose:
+      - "16686"
+      - "4318"
+      - "4317"
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    expose:
+      - "8000"
+    volumes:
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - grafana-storage:/var/lib/grafana
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./dozzle/data/users.yml:/data/users.yml
+    expose:
+      - "8080"
+    environment:
+      DOZZLE_AUTH_PROVIDER: simple
+    healthcheck:
+      test: [ "CMD", "/dozzle", "healthcheck" ]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
 volumes:
   pgdata:
   redisdata:
+  grafana-storage: { }
 
 networks:
   default:
