@@ -11,7 +11,7 @@ import {config} from "../../../../conf";
 import {getNodeAutoInstrumentations} from "@opentelemetry/auto-instrumentations-node";
 
 const exporterOptions = {
-    url: 'http://jaeger:4317'
+    url: config.TRACE.url
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);

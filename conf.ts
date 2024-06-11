@@ -16,6 +16,6 @@ export const config = {
         redis_url_auth: process.env.AUTH_REDIS_URL,
     },
     TRACE: {
-        url: process.env.URL_OTEL_TRASES
+        url: process.env.URL_OTEL_TRACES
     }
 };
