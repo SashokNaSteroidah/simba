@@ -10,6 +10,6 @@ RUN npm i -g prisma
 RUN yarn prisma generate
 RUN yarn run build
 
-CMD [ "yarn", "start:prod:main" ]
+CMD [ "yarn", "start:prod:auth" ]
 
 EXPOSE 3002
