@@ -1,4 +1,4 @@
-FROM node:21
+FROM node:21-alpine
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN yarn
 COPY ./ ./
 RUN npm i -g prisma
 RUN yarn prisma generate
-RUN yarn run build
+RUN yarn build auth
 
 CMD [ "yarn", "start:prod:auth" ]
 
