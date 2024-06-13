@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod:main": "node dist/apps/main/main",
-    "start:prod:auth": "node dist/apps/auth/main",
+    "start:prod:auth": "node dist/apps/auth/auth",
     "start:all": "concurrently \"yarn run start:dev auth\" \"yarn run start:dev main\"\n",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --passWithNoTests",
