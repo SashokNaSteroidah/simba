@@ -3,9 +3,9 @@ import {JwtModule}              from '@nestjs/jwt';
 import {RedisIntegrationModule} from './redis-integration/redis-integration.module';
 import {VerifierModule}         from './verifier/verifier.module';
 import {DatabaseModule}         from './database/database.module';
-import {config}                 from "../../../conf";
 import {AuthController}         from "./auth.controller";
 import {AuthService}            from "./auth.service";
+import {ConfigModule}           from "@nestjs/config";
 
 @Module({
     imports    : [
@@ -13,8 +13,12 @@ import {AuthService}            from "./auth.service";
         DatabaseModule,
         JwtModule.register({
             global     : true,
-            secret     : config.GENERAL.secret_for_jwt,
+            secret     : process.env.SECRET_FOR_JWT,
             signOptions: {expiresIn: '1800s'},
+        }),
+        ConfigModule.forRoot({
+            envFilePath: "../../.env",
+            isGlobal: true
         }),
         VerifierModule,
     ],

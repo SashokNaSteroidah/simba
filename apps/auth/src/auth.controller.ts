@@ -11,7 +11,6 @@ import { AuthCreateUserDto } from './types/authCreateUser.dto';
 import { RefreshTokenDto } from './types/refreshToken.dto';
 import { RegResponceDto } from '../../main/src/auth/types/regResponce.dto';
 import {
-  httpMethods,
   mLog
 } from "utils-nestjs";
 

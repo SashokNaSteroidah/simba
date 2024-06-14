@@ -1,24 +1,24 @@
 import {NestFactory} from '@nestjs/core';
 import {AuthModule}  from './auth.module';
-import tracer        from "./tracer";
 import {
     MicroserviceOptions,
     Transport
 }                    from '@nestjs/microservices';
-import {config}      from "../../../conf";
+import {Logger}      from "@nestjs/common";
 
 async function bootstrap() {
-    await tracer.start()
+    const logger = new Logger()
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(
         AuthModule,
         {
             transport: Transport.TCP,
             options  : {
-                host: config.GENERAL.auth_host,
-                port: +config.GENERAL.auth_port,
+                host: process.env.AUTH_HOST,
+                port: +process.env.AUTH_PORT,
             },
         },
     );
+    console.log(JSON.stringify(process.env))
     await app.listen();
 }
 

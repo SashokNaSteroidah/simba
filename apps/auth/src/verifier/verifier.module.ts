@@ -4,7 +4,6 @@ import { DatabaseModule } from '../database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 import { VerifierService } from './verifier.service';
 import { VerifierController } from './verifier.controller';
-import {config} from "../../../../conf";
 
 @Module({
   imports: [
@@ -12,7 +11,7 @@ import {config} from "../../../../conf";
     DatabaseModule,
     JwtModule.register({
       global: true,
-      secret: config.GENERAL.secret_for_jwt,
+      secret: process.env.SECRET_FOR_JWT,
       signOptions: { expiresIn: '1800s' },
     }),
   ],

@@ -56,7 +56,6 @@ export class AuthService {
             const event: LoginUserEventDto | null = await firstValueFrom(data);
             if (!event) {
                 this.logger.error(mLog.log({
-                    error  : "Invalid params",
                     method : httpMethods.POST,
                     handler: this.loginUser.name,
                     path   : "/api/login",

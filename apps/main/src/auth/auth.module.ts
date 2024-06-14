@@ -18,7 +18,7 @@ import {config} from "../../../../conf";
         transport: Transport.TCP,
         options: {
           host: config.GENERAL.auth_host,
-          port: +config.GENERAL.auth_port,
+          port: 3002,
         },
       },
     ]),

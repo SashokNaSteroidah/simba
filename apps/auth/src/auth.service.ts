@@ -173,7 +173,7 @@ export class AuthService {
             };
         } catch (e) {
             this.logger.error(mLog.log({
-                error  : JSON.stringify(e),
+                error  : e,
                 handler: this.loginUser.name,
                 path   : "tcp//login",
                 message: "Error logging user",
