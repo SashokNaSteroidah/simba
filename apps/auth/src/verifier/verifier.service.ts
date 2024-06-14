@@ -7,12 +7,14 @@ import {AuthDto}                 from './types/auth.dto';
 import {RedisIntegrationService} from '../redis-integration/redis-integration.service';
 import {RoleDto}                 from './types/role.dto';
 import {mLog}                    from "utils-nestjs";
+import {ConfigService}           from "@nestjs/config";
 
 @Injectable()
 export class VerifierService {
     private readonly logger = new Logger(VerifierService.name)
 
     constructor(
+        private readonly configService: ConfigService,
         private jwtService: JwtService,
         private readonly redis: RedisIntegrationService,
     ) {
@@ -23,7 +25,7 @@ export class VerifierService {
             const payload        = (dto.request = await this.jwtService.verifyAsync(
                 dto.cookie,
                 {
-                    secret: process.env.SECRET_FOR_JWT,
+                    secret: this.configService.get("SECRET_FOR_JWT"),
                 },
             ));
             const user           = await this.redis.redisClient.keys(`*_${payload.username}_*`);
@@ -80,7 +82,7 @@ export class VerifierService {
             const payload = (dto.request = await this.jwtService.verifyAsync(
                 dto.cookie,
                 {
-                    secret: process.env.SECRET_FOR_JWT,
+                    secret: this.configService.get("SECRET_FOR_JWT"),
                 },
             ));
             const role    = payload.role === dto.roles;
