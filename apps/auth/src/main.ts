@@ -18,7 +18,6 @@ async function bootstrap() {
             },
         },
     );
-    console.log(JSON.stringify(process.env))
     await app.listen();
 }
 
