@@ -30,8 +30,7 @@ async function bootstrap(): Promise<void> {
     app.use(cookieParser());
     app.setGlobalPrefix('api');
     app.enableCors();
-    console.log(JSON.stringify(config))
-    await app.listen(config.GENERAL.main_port, () => logger.log(mLog.log({message: `App is started ${config.GENERAL.main_host}:${config.GENERAL.main_port}`})));
+    await app.listen(config.GENERAL.main_port, () => logger.debug(`App is started ${config.GENERAL.main_host}:${config.GENERAL.main_port}`));
 }
 
 bootstrap();

@@ -39,8 +39,8 @@ sdk.start();
 process.on('SIGTERM', () => {
     sdk
         .shutdown()
-        .then(() => console.log('Tracing terminated'))
-        .catch((error) => console.log('Error terminating tracing', error))
+        .then(() => console.debug('Tracing terminated'))
+        .catch((error) => console.error('Error terminating tracing', error))
         .finally(() => process.exit(0));
 });
 

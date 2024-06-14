@@ -13,7 +13,7 @@ export class AspectLogger implements NestInterceptor {
     const { statusCode } = context.switchToHttp().getResponse();
     const { originalUrl, method, params, query, body } = req;
 
-    console.log({
+    console.debug({
       originalUrl,
       method,
       params,
@@ -23,7 +23,7 @@ export class AspectLogger implements NestInterceptor {
 
     return next.handle().pipe(
       tap((data) =>
-        console.log({
+        console.debug({
           statusCode,
           data,
         }),
