@@ -18,6 +18,8 @@ declare global {
       SECRET_FOR_JWT: string;
 
       AWS_REGION: string
+
+      GRAFANA_URL: string
     }
   }
 }

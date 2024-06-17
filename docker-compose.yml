@@ -14,6 +14,8 @@ services:
       - AUTH_PORT=3002
       - AUTH_HOST=auth
       - URL_OTEL_TRACES=http://jaeger:4317
+      - COLLECTOR_OTLP_ENABLED=true
+      - GRAFANA_URL=http://grafana:8000
     depends_on:
       - postgres
       - jaeger
@@ -35,6 +37,8 @@ services:
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
       - URL_OTEL_TRACES=http://jaeger:4317
+      - COLLECTOR_OTLP_ENABLED=true
+      - GRAFANA_URL=http://grafana:8000
     depends_on:
       - postgres
       - redis
