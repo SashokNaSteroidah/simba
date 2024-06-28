@@ -5,10 +5,27 @@ import {VerifierModule}         from './verifier/verifier.module';
 import {DatabaseModule}         from './database/database.module';
 import {AuthController}         from "./auth.controller";
 import {AuthService}            from "./auth.service";
-import {ConfigModule}           from "@nestjs/config";
+import {
+    ConfigModule,
+    ConfigService
+}                               from "@nestjs/config";
+import {LokiLoggerModule}       from "nestjs-loki-logger";
 
 @Module({
     imports    : [
+        LokiLoggerModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                lokiUrl: configService.get('LOKI_URL'),
+                labels: {
+                    "manual_logs": "simba-auth",
+                    "ctx": "auth"
+                },
+                logToConsole: true,
+                gzip: false
+            }),
+            inject: [ConfigService],
+        }),
         RedisIntegrationModule,
         DatabaseModule,
         JwtModule.register({

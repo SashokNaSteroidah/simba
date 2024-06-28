@@ -16,11 +16,12 @@ import {RegResponceDto}          from '../../main/src/auth/types/regResponce.dto
 import {
     mLog
 }                                from "utils-nestjs";
+import {LokiLogger}              from "nestjs-loki-logger";
 
 @Injectable()
 export class AuthService {
 
-    private readonly logger = new Logger(AuthService.name)
+    private readonly logger = new LokiLogger(AuthService.name)
     constructor(
         private readonly databaseService: DatabaseService,
         private readonly jwtService: JwtService,
@@ -37,7 +38,7 @@ export class AuthService {
             }),
             handler: this.setToRedisNewToken.name,
             message: "Generating new token name for redis"
-        }))
+        }) as string)
         const expireTime = 1800
         try {
             await this.redis.redisClient.set(redisUniqueKey, token);
@@ -45,13 +46,13 @@ export class AuthService {
             this.logger.debug(mLog.log({
                 handler: this.setToRedisNewToken.name,
                 message: `Token successfully add to redis with expiration time ${expireTime}`
-            }))
+            }) as string)
         } catch (e) {
             this.logger.error(mLog.log({
                 error  : JSON.stringify(e),
                 handler: this.setToRedisNewToken.name,
                 message: "Error while adding token to redis"
-            }))
+            }) as string)
             return false;
         }
         return true;
@@ -98,7 +99,7 @@ export class AuthService {
                     handler: this.loginUser.name,
                     path   : "tcp//login",
                     message: "Successfully get access and refresh tokens for user",
-                }))
+                }) as string)
                 return {
                     accessToken : token,
                     refreshToken: refreshToken,
@@ -121,7 +122,7 @@ export class AuthService {
                     handler: this.loginUser.name,
                     path   : "tcp//login",
                     message: "Successfully get access and refresh tokens for user",
-                }))
+                }) as string)
                 return {
                     accessToken : accessToken,
                     refreshToken: data.token,
@@ -151,7 +152,7 @@ export class AuthService {
                     handler: this.loginUser.name,
                     path   : "tcp//login",
                     message: "Successfully get access and refresh tokens for user",
-                }))
+                }) as string)
                 return {
                     accessToken : tokensFromRedis,
                     refreshToken: refreshToken,
@@ -166,7 +167,7 @@ export class AuthService {
                 handler: this.loginUser.name,
                 path   : "tcp//login",
                 message: "Successfully get access and refresh tokens for user",
-            }))
+            }) as string)
             return {
                 accessToken : tokensFromRedis,
                 refreshToken: data.token,
@@ -177,7 +178,7 @@ export class AuthService {
                 handler: this.loginUser.name,
                 path   : "tcp//login",
                 message: "Error logging user",
-            }))
+            }) as string)
             return null;
         }
     }
@@ -200,7 +201,7 @@ export class AuthService {
                 handler: this.regUser.name,
                 path   : "tcp//registration",
                 message: "User successfully created"
-            }))
+            }) as string)
             return {
                 success: true,
             };
@@ -210,7 +211,7 @@ export class AuthService {
                 handler: this.regUser.name,
                 path   : "tcp//registration",
                 message: "Error while registering user"
-            }))
+            }) as string)
             throw e;
         }
     }
@@ -257,7 +258,7 @@ export class AuthService {
                 handler: this.refreshToken.name,
                 path   : "tcp//refresh_token",
                 message: "Error while refreshing token"
-            }))
+            }) as string)
             return null;
         }
     }

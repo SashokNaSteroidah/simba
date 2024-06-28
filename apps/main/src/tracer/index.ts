@@ -7,11 +7,10 @@ import { SEMRESATTRS_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
-import {config} from "../../../../conf";
 import {getNodeAutoInstrumentations} from "@opentelemetry/auto-instrumentations-node";
 
 const exporterOptions = {
-    url: config.TRACE.url
+    url: process.env.URL_OTEL_TRACES
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);

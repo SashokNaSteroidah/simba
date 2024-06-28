@@ -6,24 +6,39 @@ import {
     ClientsModule,
     Transport
 }                           from '@nestjs/microservices';
-import {config}             from "../../../../conf";
-import {APP_INTERCEPTOR}    from "@nestjs/core";
-import {LoggingInterceptor} from "../libs/logger/logging.interceptor";
+import {LokiLoggerModule}   from "nestjs-loki-logger";
+import {
+    ConfigModule,
+    ConfigService
+}                           from "@nestjs/config";
 
 @Module({
     imports    : [
+        LokiLoggerModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                lokiUrl: configService.get('LOKI_URL'),
+                labels: {
+                    "manual_logs": "simba-app",
+                    "ctx": "auth"
+                },
+                logToConsole: true,
+                gzip: false
+            }),
+            inject: [ConfigService],
+        }),
         JwtModule.register({
             global     : true,
-            secret     : config.GENERAL.secret_for_jwt,
+            secret     : process.env.SECRET_FOR_JWT,
             signOptions: {expiresIn: '1800s'},
         }),
         ClientsModule.register([
             {
-                name     : 'auth',
+                name     : "auth",
                 transport: Transport.TCP,
                 options  : {
-                    host: config.GENERAL.auth_host,
-                    port: 3002,
+                    host: process.env.AUTH_HOST,
+                    port: +process.env.AUTH_PORT,
                 },
             },
         ]),
@@ -31,10 +46,6 @@ import {LoggingInterceptor} from "../libs/logger/logging.interceptor";
     controllers: [AuthController],
     providers  : [
         AuthService,
-        {
-            provide : APP_INTERCEPTOR,
-            useClass: LoggingInterceptor,
-        },
     ],
 })
 export class AuthModule {

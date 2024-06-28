@@ -8,10 +8,11 @@ import {RedisIntegrationService} from '../redis-integration/redis-integration.se
 import {RoleDto}                 from './types/role.dto';
 import {mLog}                    from "utils-nestjs";
 import {ConfigService}           from "@nestjs/config";
+import {LokiLogger}              from "nestjs-loki-logger";
 
 @Injectable()
 export class VerifierService {
-    private readonly logger = new Logger(VerifierService.name)
+    private readonly logger = new LokiLogger(VerifierService.name)
 
     constructor(
         private readonly configService: ConfigService,
@@ -37,7 +38,7 @@ export class VerifierService {
                     }),
                     handler: this.checkAuth.name,
                     message: "Warn while checking auth..."
-                }))
+                }) as string)
                 return null;
             }
             this.logger.debug(mLog.log({
@@ -47,14 +48,14 @@ export class VerifierService {
                 }),
                 handler: this.checkAuth.name,
                 message: "Auth got from redis..."
-            }))
+            }) as string)
             const tokenIsValid = tokenFromRedis === dto.cookie;
             if (!tokenIsValid) {
                 this.logger.warn(mLog.log({
                     warn   : "Token is not valid",
                     handler: this.checkAuth.name,
                     message: "Warning while checking auth"
-                }))
+                }) as string)
                 return null;
             }
             this.logger.log(mLog.log({
@@ -64,14 +65,14 @@ export class VerifierService {
                 }),
                 handler: this.checkAuth.name,
                 message: `User ${payload.username} successfully checked`
-            }))
+            }) as string)
             return true;
         } catch (e) {
             this.logger.error(mLog.log({
                 error  : JSON.stringify(e),
                 handler: this.checkAuth.name,
                 message: "Error while checking role"
-            }))
+            }) as string)
             return null;
         }
     }
@@ -91,7 +92,7 @@ export class VerifierService {
                     warn   : "Unknown role",
                     handler: this.checkRole.name,
                     message: "Warning while checking role"
-                }))
+                }) as string)
                 return null;
             }
             return true;
@@ -100,7 +101,7 @@ export class VerifierService {
                 error  : JSON.stringify(e),
                 handler: this.checkRole.name,
                 message: "Error while checking role"
-            }))
+            }) as string)
             return null;
         }
     }

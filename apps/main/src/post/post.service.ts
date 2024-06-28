@@ -2,7 +2,6 @@ import {
     HttpException,
     HttpStatus,
     Injectable,
-    Logger
 }                             from '@nestjs/common';
 import {DatabaseService}      from '../database/database.service';
 import {CreatePostDto}        from './types/createPost.dto';
@@ -19,11 +18,12 @@ import {
     httpMethods,
     mLog,
 }                             from 'utils-nestjs';
+import {LokiLogger}           from "nestjs-loki-logger";
 
 @Injectable()
 export class PostService {
 
-    private readonly logger = new Logger(PostService.name)
+    private readonly logger = new LokiLogger(PostService.name)
 
     constructor(
         private readonly databaseService: DatabaseService
@@ -43,7 +43,7 @@ export class PostService {
                 handler: this.CreatePost.name,
                 path   : "/api/post",
                 message: "Post created in DB"
-            }))
+            }) as string)
             return DefaultOkResponseDto;
         } catch (e) {
             this.logger.error(mLog.log({
@@ -52,7 +52,7 @@ export class PostService {
                 handler: this.CreatePost.name,
                 path   : "/api/post",
                 message: "Error while creating post"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -68,7 +68,7 @@ export class PostService {
                 handler: this.PatchPost.name,
                 path   : "/api/post",
                 message: "Invalid params while patching post"
-            }))
+            }) as string)
             throw new HttpException('Invalid params', HttpStatus.BAD_REQUEST);
         }
         try {
@@ -87,7 +87,7 @@ export class PostService {
                 handler: this.PatchPost.name,
                 path   : "/api/post",
                 message: "Post successfully updated in DB"
-            }))
+            }) as string)
             return DefaultOkResponseDto;
         } catch (e) {
             this.logger.error(mLog.log({
@@ -96,7 +96,7 @@ export class PostService {
                 handler: this.PatchPost.name,
                 path   : "/api/post",
                 message: "Error while updating post"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -109,7 +109,7 @@ export class PostService {
                 handler: this.DeletePost.name,
                 path   : "/api/post",
                 message: "Invalid params while deleting post"
-            }))
+            }) as string)
             throw new HttpException('Invalid params', HttpStatus.BAD_REQUEST);
         }
         try {
@@ -123,7 +123,7 @@ export class PostService {
                 handler: this.DeletePost.name,
                 path   : "/api/post",
                 message: "Post successfully deleted from DB"
-            }))
+            }) as string)
             return DefaultOkResponseDto;
         } catch (e) {
             this.logger.error(mLog.log({
@@ -132,7 +132,7 @@ export class PostService {
                 handler: this.DeletePost.name,
                 path   : "/api/post",
                 message: "Error while deleting post"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -145,7 +145,7 @@ export class PostService {
                 handler: this.getPosts.name,
                 path   : "/api/post",
                 message: "Posts successfully get from DB"
-            }))
+            }) as string)
             return data
         } catch (e) {
             this.logger.error(mLog.log({
@@ -154,7 +154,7 @@ export class PostService {
                 path   : "/api/post",
                 method : httpMethods.GET,
                 message: "Error while fetch posts"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }

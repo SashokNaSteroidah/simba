@@ -19,7 +19,7 @@ declare global {
 
       AWS_REGION: string
 
-      GRAFANA_URL: string
+      LOKI_URL: string
     }
   }
 }

@@ -3,7 +3,6 @@ import {
     HttpStatus,
     Inject,
     Injectable,
-    Logger
 }                                from '@nestjs/common';
 import {Response}                from 'express';
 import {AuthAuthenticateUserDTO} from './types/authAuthenticateUser.dto';
@@ -28,11 +27,12 @@ import {
     httpMethods,
     mLog
 }                                from "utils-nestjs";
+import {LokiLogger}              from "nestjs-loki-logger";
 
 @Injectable()
 export class AuthService {
 
-    private readonly logger = new Logger(AuthService.name)
+    private readonly logger = new LokiLogger(AuthService.name)
     constructor(
         @Inject('auth') private readonly communicationClient: ClientProxy,
     ) {
@@ -52,7 +52,7 @@ export class AuthService {
                 handler: this.loginUser.name,
                 path   : "/api/login",
                 message: "Event send to auth service"
-            }))
+            }) as string)
             const event: LoginUserEventDto | null = await firstValueFrom(data);
             if (!event) {
                 this.logger.error(mLog.log({
@@ -60,7 +60,7 @@ export class AuthService {
                     handler: this.loginUser.name,
                     path   : "/api/login",
                     message: "Event don't received from auth service"
-                }))
+                }) as string)
                 throw new Error();
             }
             const accessToken: string  = event.accessToken;
@@ -74,7 +74,7 @@ export class AuthService {
                 handler: this.loginUser.name,
                 path   : "/api/login",
                 message: "Refresh and access tokens received from auth service"
-            }))
+            }) as string)
             response.cookie('Cookie', accessToken);
             return {
                 refreshToken: refreshToken,
@@ -86,7 +86,7 @@ export class AuthService {
                 handler: this.loginUser.name,
                 path   : "/api/login",
                 message: "Error while logging"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -102,7 +102,7 @@ export class AuthService {
                 handler: this.registerUser.name,
                 path   : "/api/registration",
                 message: "Event send to auth service"
-            }))
+            }) as string)
             return await firstValueFrom(data);
         } catch (e) {
             this.logger.error(mLog.log({
@@ -111,7 +111,7 @@ export class AuthService {
                 handler: this.registerUser.name,
                 path   : "/api/registration",
                 message: "Error while registering"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -127,7 +127,7 @@ export class AuthService {
                 handler: this.getTokens.name,
                 path   : "/api/tokens",
                 message: "Event send to auth service"
-            }))
+            }) as string)
             return await firstValueFrom(data);
         } catch (e) {
             this.logger.error(mLog.log({
@@ -136,7 +136,7 @@ export class AuthService {
                 handler: this.getTokens.name,
                 path   : "/api/tokens",
                 message: "Error while getting tokens"
-            }))
+            }) as string)
             throw new HttpException(
                 DEFAULT_BAD_REQUEST_ERROR,
                 HttpStatus.BAD_REQUEST,
@@ -158,7 +158,7 @@ export class AuthService {
                 handler: this.refreshToken.name,
                 path   : "/api/refresh_token",
                 message: "Event send to auth service"
-            }))
+            }) as string)
             const cookie = await firstValueFrom(data);
             this.logger.debug(mLog.log({
                 info   : JSON.stringify({
@@ -168,7 +168,7 @@ export class AuthService {
                 handler: this.refreshToken.name,
                 path   : "/api/refresh_token",
                 message: "Get access token from auth service"
-            }))
+            }) as string)
             response.cookie('Cookie', cookie);
             return DefaultOkResponseDto;
         } catch (e) {
@@ -178,7 +178,7 @@ export class AuthService {
                 handler: this.refreshToken.name,
                 path   : "/api/refresh_token",
                 message: "Error while refreshing access token"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }

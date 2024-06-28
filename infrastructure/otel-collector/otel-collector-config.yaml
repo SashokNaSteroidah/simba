@@ -1,0 +1,39 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4417
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+    compression: gzip
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+    compression: gzip
+  prometheus:
+    endpoint: otel-collector:8889
+    const_labels:
+      label1: value1
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    traces/jaeger:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ otlp/jaeger ]
+    traces/tempo:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ otlp/tempo ]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ batch ]
+      exporters: [ prometheus ]

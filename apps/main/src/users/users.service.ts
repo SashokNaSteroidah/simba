@@ -2,7 +2,6 @@ import {
     HttpException,
     HttpStatus,
     Injectable,
-    Logger
 }                             from '@nestjs/common';
 import {users}                from '@prisma/client';
 import {DEFAULT_SERVER_ERROR} from '../libs/consts/errors.consts';
@@ -17,11 +16,12 @@ import {
     httpMethods,
     mLog
 }                             from "utils-nestjs";
+import {LokiLogger}           from "nestjs-loki-logger";
 
 @Injectable()
 export class UsersService {
 
-    private readonly logger = new Logger(UsersService.name)
+    private readonly logger = new LokiLogger(UsersService.name)
 
     constructor(
         private readonly databaseService: DatabaseService,
@@ -36,7 +36,7 @@ export class UsersService {
                 handler: this.getUsers.name,
                 path   : "/api/users",
                 message: "Successful get user list"
-            }))
+            }) as string)
             return userList
         } catch (e) {
             this.logger.error(mLog.log({
@@ -45,7 +45,7 @@ export class UsersService {
                 handler: this.getUsers.name,
                 path   : "/api/users",
                 message: "error while getting users list"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }
@@ -68,7 +68,7 @@ export class UsersService {
                 handler: this.patchUsers.name,
                 path   : "/api/users",
                 message: "successfully patch user"
-            }))
+            }) as string)
             return DefaultOkResponseDto;
         } catch (e) {
             this.logger.error(mLog.log({
@@ -77,7 +77,7 @@ export class UsersService {
                 handler: this.patchUsers.name,
                 path   : "/api/users",
                 message: "error while update user"
-            }))
+            }) as string)
             throw new HttpException(DEFAULT_SERVER_ERROR, HttpStatus.BAD_GATEWAY);
         }
     }

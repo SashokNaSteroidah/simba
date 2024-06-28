@@ -2,7 +2,6 @@ import {
     Body,
     Controller,
     Get,
-    Logger,
     Param,
     Patch,
     UseGuards,
@@ -26,11 +25,12 @@ import {
     httpMethods,
     mLog
 }                          from "utils-nestjs";
+import {LokiLogger}        from "nestjs-loki-logger";
 
 @Controller('users')
 export class UsersController {
 
-    private readonly logger = new Logger(UsersController.name)
+    private readonly logger = new LokiLogger(UsersController.name)
 
     constructor(
         private readonly userService: UsersService,
@@ -47,7 +47,7 @@ export class UsersController {
             handler: this.getUsers.name,
             path   : "/api/users",
             message: "Getting user list..."
-        }))
+        }) as string)
         return await this.userService.getUsers();
     }
 
@@ -66,7 +66,7 @@ export class UsersController {
             handler: this.getUsers.name,
             path   : "/api/users",
             message: `Patch user ${params?.id} ...`
-        }))
+        }) as string)
         return await this.userService.patchUsers(dto, params);
     }
 }

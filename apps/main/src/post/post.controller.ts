@@ -3,7 +3,6 @@ import {
     Controller,
     Delete,
     Get,
-    Logger,
     Param,
     Patch,
     Post,
@@ -30,11 +29,12 @@ import {
     httpMethods,
     mLog
 }                          from "utils-nestjs";
+import {LokiLogger}        from "nestjs-loki-logger";
 
 @Controller('post')
 export class PostController {
 
-    private readonly logger = new Logger(PostController.name)
+    private readonly logger = new LokiLogger(PostController.name)
 
     constructor(
         private readonly postService: PostService
@@ -53,7 +53,7 @@ export class PostController {
             handler: this.CreatePost.name,
             path   : "/api/post",
             message: "Create new post..."
-        }))
+        }) as string)
         return await this.postService.CreatePost(dto);
     }
 
@@ -64,7 +64,7 @@ export class PostController {
             handler: this.getPosts.name,
             path   : "/api/post",
             message: "get post list..."
-        }))
+        }) as string)
         return await this.postService.getPosts();
     }
 
@@ -83,7 +83,7 @@ export class PostController {
             handler: this.UpdatePost.name,
             path   : "/api/post",
             message: `patching post ${params.id} ...`
-        }))
+        }) as string)
         return await this.postService.PatchPost(dto, params);
     }
 
@@ -98,7 +98,7 @@ export class PostController {
             handler: this.DeletePost.name,
             path   : "/api/post",
             message: `deleting post ${params.id} ...`
-        }))
+        }) as string)
         return await this.postService.DeletePost(params);
     }
 }

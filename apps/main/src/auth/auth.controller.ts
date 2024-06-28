@@ -2,7 +2,6 @@ import {
     Body,
     Controller,
     Get,
-    Logger,
     Post,
     Res,
     UseGuards,
@@ -26,11 +25,12 @@ import {
     httpMethods,
     mLog
 }                                from "utils-nestjs";
+import {LokiLogger}              from "nestjs-loki-logger";
 
 @Controller('auth')
 export class AuthController {
 
-    private readonly logger = new Logger(AuthController.name)
+    private readonly logger = new LokiLogger(AuthController.name)
     constructor(
         private readonly authService: AuthService
     ) {
@@ -48,7 +48,7 @@ export class AuthController {
             handler: this.loginUser.name,
             path   : "/api/login",
             message: "Logging request..."
-        }))
+        }) as string)
         return await this.authService.loginUser(dto, response);
     }
 
@@ -61,7 +61,7 @@ export class AuthController {
             handler: this.registerUser.name,
             path   : "/api/registration",
             message: "Registration request..."
-        }))
+        }) as string)
         return this.authService.registerUser(dto);
     }
 
@@ -75,7 +75,7 @@ export class AuthController {
             handler: this.getTokens.name,
             path   : "/api/tokens",
             message: "Getting user tokens..."
-        }))
+        }) as string)
         return this.authService.getTokens();
     }
 
@@ -91,7 +91,7 @@ export class AuthController {
             handler: this.refreshToken.name,
             path   : "/api/refresh",
             message: "Refreshing token..."
-        }))
+        }) as string)
         return this.authService.refreshToken(dto, res);
     }
 }

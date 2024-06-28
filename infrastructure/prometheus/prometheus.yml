@@ -1,0 +1,58 @@
+global:
+  scrape_interval: 5s
+  external_labels:
+    cluster: mimir
+    namespace: mimir
+
+remote_write:
+  - url: http://load-balancer:9009/api/v1/push
+    headers:
+      X-Scope-OrgID: demo
+
+scrape_configs:
+  - job_name: mimir
+    static_configs:
+      - targets: [ "mimir-1:8080" ]
+        labels:
+          pod: "mimir-1"
+      - targets: [ "mimir-2:8080" ]
+        labels:
+          pod: "mimir-2"
+      - targets: [ "mimir-3:8080" ]
+        labels:
+          pod: "mimir-3"
+  - job_name: nestjs-service
+    honor_labels: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /api/metrics
+    static_configs:
+      - targets:
+          - 'app:3001'
+  - job_name: prometheus
+    honor_labels: true
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets:
+          - 'prometheus:9090'
+  - job_name: 'otel-collector'
+    scrape_interval: 10s
+    static_configs:
+      - targets: [ 'otel-collector:8889' ]
+      - targets: [ 'otel-collector:8888' ]
+  - job_name: node
+    honor_labels: true
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'
+  - job_name: jaeger
+    honor_labels: true
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 'jaeger:14269'

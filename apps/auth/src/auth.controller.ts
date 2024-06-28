@@ -13,11 +13,12 @@ import { RegResponceDto } from '../../main/src/auth/types/regResponce.dto';
 import {
   mLog
 } from "utils-nestjs";
+import {LokiLogger} from "nestjs-loki-logger";
 
 @Controller()
 export class AuthController {
 
-  private readonly logger = new Logger(AuthController.name)
+  private readonly logger = new LokiLogger(AuthController.name)
   constructor(
       private readonly authService: AuthService
   ) {}
@@ -29,7 +30,7 @@ export class AuthController {
       handler: this.loginUser.name,
       path   : "tcp//login",
       message: "Got logging request..."
-    }))
+    }) as string)
     return await this.authService.loginUser(dto);
   }
 
@@ -40,7 +41,7 @@ export class AuthController {
       handler: this.regUser.name,
       path   : "tcp//registration",
       message: "Got registration request..."
-    }))
+    }) as string)
     return await this.authService.regUser(dto);
   }
 
@@ -50,7 +51,7 @@ export class AuthController {
       handler: this.getTokens.name,
       path   : "tcp//get_tokens",
       message: "Got tokens list request..."
-    }))
+    }) as string)
     return await this.authService.getTokens();
   }
 
@@ -61,7 +62,7 @@ export class AuthController {
       handler: this.refreshToken.name,
       path   : "tcp//refresh_token",
       message: "Got refresh access token request..."
-    }))
+    }) as string)
     return await this.authService.refreshToken(dto);
   }
 }

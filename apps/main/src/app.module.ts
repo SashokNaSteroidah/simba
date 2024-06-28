@@ -1,20 +1,34 @@
-import {Module}             from '@nestjs/common';
-import {AppController}      from './app.controller';
-import {AppService}         from './app.service';
-import {AuthModule}         from './auth/auth.module';
-import {DatabaseModule}     from './database/database.module';
-import {PostModule}         from './post/post.module';
-import {ConfigModule}       from '@nestjs/config';
-import {UsersModule}        from './users/users.module';
-import {HttpModule}         from "@nestjs/axios";
-import {APP_INTERCEPTOR}    from "@nestjs/core";
-import {LoggingInterceptor} from "./libs/logger/logging.interceptor";
+import {Module}           from '@nestjs/common';
+import {AppController}    from './app.controller';
+import {AppService}       from './app.service';
+import {AuthModule}       from './auth/auth.module';
+import {DatabaseModule}   from './database/database.module';
+import {PostModule}       from './post/post.module';
+import {
+    ConfigModule,
+    ConfigService
+}                         from '@nestjs/config';
+import {UsersModule}      from './users/users.module';
+import {LokiLoggerModule} from "nestjs-loki-logger";
+import {PrometheusModule} from "@willsoto/nestjs-prometheus";
 
 @Module({
     imports    : [
-        HttpModule.register({
-            timeout     : 5000,
-            maxRedirects: 5,
+        PrometheusModule.register({
+            path: '/metrics',
+        }),
+        LokiLoggerModule.forRootAsync({
+            imports   : [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                lokiUrl     : configService.get('LOKI_URL'),
+                labels      : {
+                    "manual_logs": "simba-app",
+                    "ctx": "app"
+                },
+                logToConsole: true,
+                gzip        : false
+            }),
+            inject    : [ConfigService],
         }),
         AuthModule,
         DatabaseModule,
@@ -29,11 +43,7 @@ import {LoggingInterceptor} from "./libs/logger/logging.interceptor";
         AppController,
     ],
     providers  : [
-        AppService,
-        {
-            provide : APP_INTERCEPTOR,
-            useClass: LoggingInterceptor,
-        },
+        AppService
     ],
 })
 export class AppModule {

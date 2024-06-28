@@ -1,3 +1,13 @@
+x-def-logging: &default-logging
+  logging:
+    driver: "loki"
+    options:
+      loki-url: "http://loki:3100/loki/api/v1/push"
+      loki-batch-size: "100"
+      loki-retries: 2
+      loki-max-backoff: 1000ms
+      loki-timeout: 1s
+
 services:
   app:
     build:
@@ -6,6 +16,10 @@ services:
     expose:
       - "3001"
     restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    <<: *default-logging
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
       - SECRET_FOR_JWT=Ahv)y,i]U9Q(QE_
@@ -13,9 +27,9 @@ services:
       - MAIN_HOST=app
       - AUTH_PORT=3002
       - AUTH_HOST=auth
-      - URL_OTEL_TRACES=http://jaeger:4317
+      - URL_OTEL_TRACES=http://otel-collector:4417
       - COLLECTOR_OTLP_ENABLED=true
-      - GRAFANA_URL=http://grafana:8000
+      - LOKI_URL=http://loki:3100
     depends_on:
       - postgres
       - jaeger
@@ -27,6 +41,10 @@ services:
     expose:
       - "3002"
     restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    <<: *default-logging
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
       - SECRET_FOR_JWT=Ahv)y,i]U9Q(QE_
@@ -36,107 +54,301 @@ services:
       - AUTH_REDIS_URL=redis://redis:6379/0
       - AUTH_REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
-      - URL_OTEL_TRACES=http://jaeger:4317
+      - URL_OTEL_TRACES=http://otel-collector:4417
       - COLLECTOR_OTLP_ENABLED=true
-      - GRAFANA_URL=http://grafana:8000
+      - LOKI_URL=http://loki:3100
     depends_on:
       - postgres
       - redis
       - jaeger
 
-
   redis:
     image: redis
     restart: always
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     ports:
       - "6379:6379"
+    <<: *default-logging
     volumes:
       - redisdata:/var/lib/redis/data
-
 
   postgres:
     image: postgres
     restart: always
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     environment:
       POSTGRES_DB: "root"
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "root"
     ports:
       - "5432:5432"
+    <<: *default-logging
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  #  minio:
-  #    image: minio/minio
-  #    ports:
-  #      - '9001:9000'
-  #    environment:
-  #      MINIO_ACCESS_KEY: minio
-  #      MINIO_SECRET_KEY: minio123
-  #    command:
-  #      - server
-  #      - /data
-  #    healthcheck:
-  #      test: [ 'CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live' ]
-  #      interval: 30s
-  #      timeout: 20s
-  #      retries: 3
+  minio:
+    image: minio/minio
+    entrypoint: [ "" ]
+    command: [ "sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data --console-address \":9001\"" ]
+    expose:
+      - "9000"
+    ports:
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
 
   nginx:
     image: nginx:latest
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     ports:
       - "3001:3001"
       - "8000:8000"
       - "8001:8001"
+      - "9001:9001"
+      - "9090:9090"
       - "16686:16686"
-    restart: unless-stopped
+    <<: *default-logging
+
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./infrastructure/nginx/.htpasswd:/etc/nginx/conf.d/.htpasswd
     depends_on:
       - app
       - grafana
       - jaeger
       - dozzle
       - auth
+      - prometheus
+      - minio
 
   jaeger:
     image: jaegertracing/all-in-one:latest
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     expose:
-      - "16686"
-      - "4318"
-      - "4317"
+      - "4317"   # OTLP gRPC receiver
+      - "16686"  # UI and API
+      - "14269"  # Prometheus' metrics
+    <<: *default-logging
+
+  otel-collector:
+    image: otel/opentelemetry-collector
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    command:
+      - "--config=/etc/otel-collector-config.yaml"
+    expose:
+      - "8888"   # Prometheus' metrics exposed by the collector
+      - "8889"   # Prometheus exporter metrics
+      - "4417"   # OTLP gRPC receiver
+      - "4418"   # OTLP HTTP receiver
+    <<: *default-logging
+    volumes:
+      - ./infrastructure/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    depends_on:
+      - jaeger
 
   grafana:
     image: grafana/grafana-enterprise
-    container_name: grafana
     restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
     expose:
       - "8000"
+    <<: *default-logging
     volumes:
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./infrastructure/grafana/grafana.ini:/etc/grafana/grafana.ini
       - grafana-storage:/var/lib/grafana
 
-  dozzle:
-    container_name: dozzle
-    image: amir20/dozzle:latest
+  tempo:
+    image: grafana/tempo:2.2.3
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    command:
+      - "-config.file=/etc/tempo.yaml"
+    expose:
+      - "3200"
+      - "4317"   # OTLP gRPC receiver
+    <<: *default-logging
     volumes:
+      - ./infrastructure/tempo/tempo.yaml:/etc/tempo.yaml
+      - tempo:/tmp/tempo
+
+  loki:
+    image: grafana/loki:2.9.2
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    expose:
+      - "3100"
+    <<: *default-logging
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+
+#  agent:
+#    image: grafana/mimir:latest
+#    ports:
+#      - "9009:9009"
+#    command: [ "-config.file=/etc/mimir.yaml" ]
+#    volumes:
+#      - ./infrastructure/agent/agent.yaml:/etc/agent/agent.yaml
+#      - agent:/etc/agent/data
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    <<: *default-logging
+    command: -config.file=/etc/promtail/promtail.yaml
+    volumes:
+      - ./infrastructure/promtail/promtail.yaml:/etc/promtail/promtail.yaml
+      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./dozzle/data/users.yml:/data/users.yml
+
+  prometheus:
+    image: prom/prometheus
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    expose:
+      - "9090"
+    <<: *default-logging
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - prometheus:/prometheus \
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    restart: unless-stopped
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    <<: *default-logging
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.systemd'
+      - '--collector.processes'
+      - '--collector.interrupts'
+      - '--collector.tcpstat'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+
+  alertmanager:
+    image: prom/alertmanager
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+    expose:
+      - "9093"
+    <<: *default-logging
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./infrastructure/alertmanager/:/etc/alertmanager/
+
+  load-balancer:
+    image: nginx:latest
+    volumes:
+      - ./infrastructure/nginx-mimir/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - "mimir-1"
+      - "mimir-2"
+      - "mimir-3"
+    ports:
+      - "9009:9009"
+
+  mimir-1:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir.yaml"]
+    hostname: mimir-1
+    depends_on:
+      - minio
+    volumes:
+      - ./infrastructure/mimir/mimir.yaml:/etc/mimir.yaml
+      - ./infrastructure/alertmanager/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+      - mimir-1-data:/data
+
+  mimir-2:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir.yaml"]
+    hostname: mimir-2
+    depends_on:
+      - minio
+    volumes:
+      - ./infrastructure/mimir/mimir.yaml:/etc/mimir.yaml
+      - ./infrastructure/alertmanager/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+      - mimir-2-data:/data
+
+  mimir-3:
+    image: grafana/mimir:latest
+    command: ["-config.file=/etc/mimir.yaml"]
+    hostname: mimir-3
+    depends_on:
+      - minio
+    volumes:
+      - ./infrastructure/mimir/mimir.yaml:/etc/mimir.yaml
+      - ./infrastructure/alertmanager/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+      - mimir-3-data:/data
+
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: unless-stopped
     expose:
       - "8080"
-    environment:
-      DOZZLE_AUTH_PROVIDER: simple
     healthcheck:
       test: [ "CMD", "/dozzle", "healthcheck" ]
       interval: 3s
       timeout: 30s
       retries: 5
       start_period: 30s
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   pgdata:
   redisdata:
   grafana-storage: { }
+  loki_data:
+  prometheus:
+  tempo:
+  agent:
+  mimir-1-data:
+  mimir-2-data:
+  mimir-3-data:
+  minio-data:
 
 networks:
   default:
