@@ -96,8 +96,7 @@ services:
     command: [ "sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data --console-address \":9001\"" ]
     expose:
       - "9000"
-    ports:
-      - "9001:9001"
+      - "9001"
     environment:
       - MINIO_ROOT_USER=mimir
       - MINIO_ROOT_PASSWORD=supersecret
