@@ -22,9 +22,9 @@ FROM build as runner
 
 WORKDIR /app
 
-COPY --from=deps /app/node_modules .
-COPY --from=deps /app/dist .
-COPY --from=deps /app/package.json .
+COPY --from=build /app/node_modules .
+COPY --from=build /app/dist .
+COPY --from=build /app/package.json .
 
 CMD [ "yarn", "start:prod:main" ]
 
