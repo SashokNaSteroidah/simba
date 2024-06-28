@@ -16,9 +16,6 @@ services:
     expose:
       - "3001"
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     <<: *default-logging
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
@@ -41,9 +38,6 @@ services:
     expose:
       - "3002"
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     <<: *default-logging
     environment:
       - DATABASE_URL=postgresql://root:root@postgres:5432/root?schema=kursach&pgbouncer=true&TrustServerCertificate=true
@@ -65,9 +59,6 @@ services:
   redis:
     image: redis
     restart: always
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     ports:
       - "6379:6379"
     <<: *default-logging
@@ -77,9 +68,6 @@ services:
   postgres:
     image: postgres
     restart: always
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     environment:
       POSTGRES_DB: "root"
       POSTGRES_USER: "root"
@@ -106,9 +94,6 @@ services:
   nginx:
     image: nginx:latest
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     ports:
       - "3001:3001"
       - "8000:8000"
@@ -132,9 +117,6 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     expose:
       - "4317"   # OTLP gRPC receiver
       - "16686"  # UI and API
@@ -144,9 +126,6 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     command:
       - "--config=/etc/otel-collector-config.yaml"
     expose:
@@ -163,9 +142,6 @@ services:
   grafana:
     image: grafana/grafana-enterprise
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     expose:
       - "8000"
     <<: *default-logging
@@ -176,9 +152,6 @@ services:
   tempo:
     image: grafana/tempo:2.2.3
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     command:
       - "-config.file=/etc/tempo.yaml"
     expose:
@@ -192,9 +165,6 @@ services:
   loki:
     image: grafana/loki:2.9.2
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     ports:
       - "3100:3100"
     <<: *default-logging
@@ -214,9 +184,6 @@ services:
   promtail:
     image: grafana/promtail:2.9.2
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     <<: *default-logging
     command: -config.file=/etc/promtail/promtail.yaml
     volumes:
@@ -228,9 +195,6 @@ services:
   prometheus:
     image: prom/prometheus
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     expose:
       - "9090"
     <<: *default-logging
@@ -244,9 +208,6 @@ services:
   node-exporter:
     image: quay.io/prometheus/node-exporter:latest
     restart: unless-stopped
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     <<: *default-logging
     command:
       - '--path.procfs=/host/proc'
@@ -265,9 +226,6 @@ services:
 
   alertmanager:
     image: prom/alertmanager
-    labels:
-      logging: "promtail"
-      logging_jobname: "containerlogs"
     expose:
       - "9093"
     <<: *default-logging
