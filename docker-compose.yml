@@ -196,8 +196,8 @@ services:
     labels:
       logging: "promtail"
       logging_jobname: "containerlogs"
-    expose:
-      - "3100"
+    ports:
+      - "3100:3100"
     <<: *default-logging
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
