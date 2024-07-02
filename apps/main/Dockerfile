@@ -1,31 +1,41 @@
-FROM node:20-slim as deps
+FROM node as deps
 
 WORKDIR /app
 
-RUN apt update -y && apt install openssl -y
-
-COPY package*.json ./
+ADD package.json yarn.lock ./
 RUN yarn
-COPY . .
-RUN npm i -g prisma
-RUN yarn prisma generate
 
-FROM deps as build
+ADD prisma /app/prisma
+RUN npm i -g prisma && yarn prisma generate
+
+
+FROM node:20-slim as build
 
 WORKDIR /app
 
-COPY --from=deps /app /app
+ADD /apps /app/apps
+ADD *.json /app
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/package.json .
+COPY --from=deps /app/yarn.lock .
 
 RUN yarn build main
 
-FROM build as runner
+FROM node:20-slim
 
 WORKDIR /app
 
-COPY --from=build /app/node_modules .
-COPY --from=build /app/dist .
-COPY --from=build /app/package.json .
+ENV NODE_ENV=production
 
-CMD [ "yarn", "start:prod:main" ]
+RUN apt update -y && apt upgrade -y && apt install openssl -y
+
+COPY --from=deps /app/package.json .
+COPY --from=deps /app/yarn.lock .
+COPY --from=build /app/dist /app/dist
+RUN yarn install --production --frozen-lockfile
+COPY --from=deps /app/node_modules/.prisma /app/node_modules/.prisma
+
+ENTRYPOINT [ "node" ]
+CMD [ "dist/apps/main/main.js" ]
 
 EXPOSE 3001

@@ -29,7 +29,6 @@ services:
       - LOKI_URL=http://loki:3100
     depends_on:
       - postgres
-      - jaeger
 
   auth:
     build:
@@ -54,7 +53,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - jaeger
 
   redis:
     image: redis
