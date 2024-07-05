@@ -1,5 +1,5 @@
 global:
-  scrape_interval: 5s
+  scrape_interval: 10s
   external_labels:
     cluster: mimir
     namespace: mimir
@@ -23,21 +23,21 @@ scrape_configs:
           pod: "mimir-3"
   - job_name: nestjs-service
     honor_labels: true
-    scrape_interval: 15s
-    scrape_timeout: 10s
+    scrape_interval: 20s
+    scrape_timeout: 15s
     metrics_path: /api/metrics
     static_configs:
       - targets:
           - 'app:3001'
   - job_name: prometheus
     honor_labels: true
-    scrape_interval: 30s
-    scrape_timeout: 10s
+    scrape_interval: 60s
+    scrape_timeout: 30s
     static_configs:
       - targets:
           - 'prometheus:9090'
   - job_name: 'otel-collector'
-    scrape_interval: 10s
+    scrape_interval: 30s
     static_configs:
       - targets: [ 'otel-collector:8889' ]
       - targets: [ 'otel-collector:8888' ]
@@ -50,8 +50,8 @@ scrape_configs:
           - 'node-exporter:9100'
   - job_name: jaeger
     honor_labels: true
-    scrape_interval: 30s
-    scrape_timeout: 10s
+    scrape_interval: 120s
+    scrape_timeout: 110s
     metrics_path: /metrics
     static_configs:
       - targets:
