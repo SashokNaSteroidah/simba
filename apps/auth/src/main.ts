@@ -6,6 +6,8 @@ import {
     Transport
 }                    from '@nestjs/microservices';
 import {Logger}      from "@nestjs/common";
+import * as Pyroscope from "@pyroscope/nodejs/dist/esm";
+import {pyroConfigAuth} from "./pyro/config";
 
 async function bootstrap() {
     await tracer.start()
@@ -20,6 +22,8 @@ async function bootstrap() {
             },
         },
     );
+    Pyroscope.init(pyroConfigAuth);
+    Pyroscope.start()
     logger.debug(`Service started at ${process.env.AUTH_HOST}:${process.env.AUTH_PORT}`)
     await app.listen();
 }

@@ -20,6 +20,8 @@ declare global {
       AWS_REGION: string
 
       LOKI_URL: string
+
+      PYROSCOPE_URL: string
     }
   }
 }

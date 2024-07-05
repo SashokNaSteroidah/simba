@@ -27,6 +27,7 @@ services:
       - URL_OTEL_TRACES=http://otel-collector:4417
       - COLLECTOR_OTLP_ENABLED=true
       - LOKI_URL=http://loki:3100
+      - PYROSCOPE_URL=http://pyroscope:4040
     depends_on:
       - postgres
 
@@ -276,6 +277,11 @@ services:
       - ./infrastructure/mimir/mimir.yaml:/etc/mimir.yaml
       - ./infrastructure/alertmanager/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
       - mimir-3-data:/data
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    expose:
+      - "4040"
 
   dozzle:
     image: amir20/dozzle:latest

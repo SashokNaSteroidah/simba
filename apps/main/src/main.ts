@@ -7,6 +7,8 @@ import {
     mLog
 }                        from "utils-nestjs";
 import {Logger}          from "@nestjs/common";
+import * as Pyroscope from "@pyroscope/nodejs"
+import {pyroConfigMain}  from "./pyro/config";
 
 dns.setDefaultResultOrder('ipv4first');
 
@@ -16,6 +18,8 @@ async function bootstrap(): Promise<void> {
     const app    = await NestFactory.create(AppModule, {
         rawBody: true,
     });
+    Pyroscope.init(pyroConfigMain);
+    Pyroscope.start()
     mLog.config({
         objectToLog       : false,
         disableColor      : true,
