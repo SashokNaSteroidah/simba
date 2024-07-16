@@ -6,7 +6,7 @@ import {
     Transport
 }                    from '@nestjs/microservices';
 import {Logger}      from "@nestjs/common";
-import * as Pyroscope from "@pyroscope/nodejs/dist/esm";
+import * as Pyroscope from "@pyroscope/nodejs";
 import {pyroConfigAuth} from "./pyro/config";
 
 async function bootstrap() {
