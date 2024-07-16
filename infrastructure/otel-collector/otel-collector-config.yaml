@@ -2,7 +2,7 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: localhost:4417
+        endpoint: 0.0.0.0:4417
 
 exporters:
   otlp/jaeger:
