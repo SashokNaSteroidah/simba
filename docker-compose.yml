@@ -71,8 +71,8 @@ services:
       POSTGRES_DB: "root"
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "root"
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     <<: *default-logging
     volumes:
       - pgdata:/var/lib/postgresql/data
