@@ -65,7 +65,7 @@ services:
       - redisdata:/var/lib/redis/data
 
   postgres:
-    image: postgres
+    image: postgres:16.3-alpine3.20
     restart: always
     environment:
       POSTGRES_DB: "root"
@@ -76,6 +76,7 @@ services:
     <<: *default-logging
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./infrastructure/postgres/pg_hba.conf:/var/lib/postgresql/pg_hba.conf
 
   minio:
     image: minio/minio
