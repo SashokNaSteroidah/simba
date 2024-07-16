@@ -29,10 +29,10 @@ ENV NODE_ENV=production
 
 RUN apt update -y && apt upgrade -y && apt install openssl -y
 
-COPY --from=deps /app/package.json .
 COPY --from=deps /app/yarn.lock .
-COPY --from=build /app/dist /app/dist
+COPY --from=deps /app/package.json .
 RUN yarn install --production --frozen-lockfile
+COPY --from=build /app/dist /app/dist
 COPY --from=deps /app/node_modules/.prisma /app/node_modules/.prisma
 
 ENTRYPOINT [ "node" ]
