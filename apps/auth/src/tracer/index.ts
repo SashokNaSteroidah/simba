@@ -29,7 +29,7 @@ const sdk = new NodeSDK({
         new ExpressInstrumentation(),
     ],
     resource: new Resource({
-        [SEMRESATTRS_SERVICE_NAME]: 'simba-auth-service',
+        [SEMRESATTRS_SERVICE_NAME]: 'auth-service',
     }),
 });
 
