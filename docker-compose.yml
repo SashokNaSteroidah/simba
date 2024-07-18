@@ -52,6 +52,7 @@ services:
       - URL_OTEL_TRACES=grpc://otel-collector:4417
       - COLLECTOR_OTLP_ENABLED=true
       - LOKI_URL=http://loki:3100
+      - PYROSCOPE_URL=http://pyroscope:4040
     depends_on:
       - postgres
       - redis
