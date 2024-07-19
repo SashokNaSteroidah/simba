@@ -6,7 +6,7 @@ ADD package.json yarn.lock ./
 RUN yarn
 
 ADD prisma /app/prisma
-RUN npm i -g prisma && prisma generate
+RUN npm i -g prisma && yarn add @prisma/client && prisma generate
 
 
 FROM node:20-slim as build
